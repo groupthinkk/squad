@@ -26,7 +26,6 @@ def parse_user_data(json_data):
 		post['likes'] = data['likes']['count']
 		post['id'] = data['id']
 		post['image'] = data['images']['standard_resolution']['url']
-		post['rnd'] = random()
 		post['username'] = data['user']['username']
 		l.append(post)
 	return l
@@ -48,11 +47,15 @@ def update():
 			for y in range(x+1, len(d)):
 				print x, y
 				p = {}
-				p["post1"] = d[x]
-				p["post2"] = d[y]
-				print p
+				p["postdata"] = []
+				p["postdata"].append(d[x])
+				p["postdata"].append(d[y])
+				p["posts"] = [d[x]['id'], d[y]['id']]
+				p["userlist"] = []
+				p['rnd'] = random()
 				inserts.append(p)
 	db.accountdata.insert(inserts)
+	db.accountdata.create_index('rnd')
 	print "done"
 
 def add_username(username):
@@ -64,9 +67,12 @@ def add_username(username):
 	else:
 		db.accountlist.insert({'name': username,'id':str(data['id'])})
 
-def get_two():
-	while (not d1):
-		d1 = db.accountdata.find_one({'$query': {'rnd': {'$gte': random()}}, '$orderby': { 'rnd': 1 }})
-	while (not d2):
-		d2 = db.accountdata.find_one({'$query': {'rnd': {'$gte': random()}, 'id': {'$ne': d1['id']}, 'username': d1['username']}, '$orderby': { 'rnd': 1 }})
-	return [d1, d2]
+def get_two(username):
+	rand = random()
+	print rand
+	d = db.accountdata.find_one({'userlist': {'$ne': username}, 'rnd': {'$gte': rand}})
+	if d is None:
+		d = db.accountdata.find_one({'userlist': {'$ne': username}, 'rnd': {'$lte': rand}})
+	if d is None:
+		return "you're out"
+	return d['postdata']

@@ -19,7 +19,7 @@ db = client["guesswhich"]
 def index():
 	if request.method == "GET":
 		if 'loggedIn' in session:
-			post = instagramfunctions.get_two()
+			post = instagramfunctions.get_two(session["loggedIn"])
 			post1image = post[0]['image']
 			post1id = post[0]['id']
 			post2image = post[1]['image']
@@ -28,8 +28,9 @@ def index():
 		else:
 			return redirect(url_for("login"))
 	else:
-		post1 = db.accountdata.find_one({'id':request.form['post1id']})
-		post2 = db.accountdata.find_one({'id':request.form['post2id']})
+		posts = db.accountdata.find_one({'posts': [request.form['post1id'], request.form['post2id']]})
+		post1 = posts['postdata'][0]
+		post2 = posts['postdata'][1]
 		if post1['likes'] >= post2['likes']:
 			correct = 'post1'
 		else:
@@ -41,7 +42,9 @@ def index():
 		else:
 			db.userdata.update({'email': session['loggedIn']}, {'$inc': {'wrong':1}})
 			rw = "wrong"
-		post = instagramfunctions.get_two()
+		db.accountdata.update({'posts': [request.form['post1id'], request.form['post2id']]}, {'$push': {'userlist': session["loggedIn"]}})
+		print db.accountdata.find_one({'posts': [request.form['post1id'], request.form['post2id']]})
+		post = instagramfunctions.get_two(session["loggedIn"])
 		post1image = post[0]['image']
 		post1id = post[0]['id']
 		post2image = post[1]['image']
@@ -112,4 +115,4 @@ def updatedata():
 	return redirect(url_for('index'))
 
 if __name__ == "__main__":
-	app.run(debug = False)
+	app.run(debug = True)
