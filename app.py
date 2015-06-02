@@ -9,6 +9,9 @@ from hashlib import sha512
 app = Flask(__name__)
 app.secret_key = sha512("cybersec").hexdigest()
 
+env = app.jinja_env
+env.line_statement_prefix = '='
+
 client = MongoClient()
 db = client["guesswhich"]
 
@@ -108,6 +111,5 @@ def updatedata():
 	instagramfunctions.update()
 	return redirect(url_for('index'))
 
-
 if __name__ == "__main__":
-	app.run(debug = True)
+	app.run(debug = False)

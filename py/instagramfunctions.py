@@ -3,6 +3,8 @@ import requests
 from pymongo import MongoClient
 from random import random
 
+from gevent import monkey; monkey.patch_all()
+
 client_id='375701af44384b6da4230f343a528b92'
 client_secret='9620d4aef36f4e5b9139731497babcdb'
 
@@ -16,11 +18,9 @@ def create_user_urls(id_list):
 		l.append(url)
 	return l
 
-
 def parse_user_data(json_data):
 	json_data = json_data.json()
 	l = []
-	print json_data['data']
 	for data in json_data['data']:
 		post = {}
 		post['likes'] = data['likes']['count']
@@ -40,8 +40,19 @@ def update():
 	ds = []
 	for d in data:
 		ds.append(parse_user_data(d))
+	inserts = []
 	for d in ds:
-		db.accountdata.insert(d)
+		print d
+		print len(d)
+		for x in range(len(d)-1):
+			for y in range(x+1, len(d)):
+				print x, y
+				p = {}
+				p["post1"] = d[x]
+				p["post2"] = d[y]
+				print p
+				inserts.append(p)
+	db.accountdata.insert(inserts)
 	print "done"
 
 def add_username(username):
@@ -54,8 +65,6 @@ def add_username(username):
 		db.accountlist.insert({'name': username,'id':str(data['id'])})
 
 def get_two():
-	d1 = 0
-	d2 = 0
 	while (not d1):
 		d1 = db.accountdata.find_one({'$query': {'rnd': {'$gte': random()}}, '$orderby': { 'rnd': 1 }})
 	while (not d2):
