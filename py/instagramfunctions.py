@@ -9,7 +9,7 @@ client_id='375701af44384b6da4230f343a528b92'
 client_secret='9620d4aef36f4e5b9139731497babcdb'
 
 client = MongoClient()
-db = client["guesswhich"]
+db = client["SQUAD"]
 
 def create_user_urls(id_list):
 	l = []
@@ -66,13 +66,3 @@ def add_username(username):
 		print "nothing happened"
 	else:
 		db.accountlist.insert({'name': username,'id':str(data['id'])})
-
-def get_two(username):
-	rand = random()
-	print rand
-	d = db.accountdata.find_one({'userlist': {'$ne': username}, 'rnd': {'$gte': rand}})
-	if d is None:
-		d = db.accountdata.find_one({'userlist': {'$ne': username}, 'rnd': {'$lte': rand}})
-	if d is None:
-		return "you're out"
-	return d['postdata']

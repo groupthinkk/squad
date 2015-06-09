@@ -13,13 +13,13 @@ env = app.jinja_env
 env.line_statement_prefix = '='
 
 client = MongoClient()
-db = client["guesswhich"]
+db = client["SQUAD"]
 
 @app.route("/", methods = ["GET", "POST"])
 def index():
 	if request.method == "GET":
 		if 'loggedIn' in session:
-			post = instagramfunctions.get_two(session["loggedIn"])
+			post = dbfunctions.get_two(session["loggedIn"])
 			post1image = post[0]['image']
 			post1id = post[0]['id']
 			post2image = post[1]['image']
@@ -43,13 +43,18 @@ def index():
 			db.userdata.update({'email': session['loggedIn']}, {'$inc': {'wrong':1}})
 			rw = "wrong"
 		db.accountdata.update({'posts': [request.form['post1id'], request.form['post2id']]}, {'$push': {'userlist': session["loggedIn"]}})
-		print db.accountdata.find_one({'posts': [request.form['post1id'], request.form['post2id']]})
-		post = instagramfunctions.get_two(session["loggedIn"])
+		dbfunctions.record_answer(session["loggedIn"], request.form['post1id'], request.form['post2id'], rw)
+		post = dbfunctions.get_two(session["loggedIn"])
 		post1image = post[0]['image']
 		post1id = post[0]['id']
 		post2image = post[1]['image']
 		post2id = post[1]['id']
 		return render_template("home.html", post1image = post1image, post1id = post1id, post2image = post2image, post2id = post2id, rw = rw)
+
+@app.route("/leaderboard", methods = ["GET"])
+def leaderboard():
+	leaders = dbfunctions.get_leaders()
+	return render_template("leaderboard.html", leaders=leaders)
 
 @app.route("/stats", methods = ["GET", "POST"])
 def stats():
@@ -86,28 +91,65 @@ def register():
 	result = db.userdata.find_one({"email": email})
 
 	if result is not None:
-		#return redirect(url_for("register"))
-		return "no"
+		return redirect(url_for("register"))
 	elif password == password2:
 		db.userdata.insert({"email": email, "password": password, "right": 0, "wrong": 0})
 		return redirect(url_for("index"))
 	else:
-		#return redirect(url_for("register"))
-		return "hi"
-
-@app.route("/add", methods = ["GET", "POST"])
-def add():
-	if request.method == "GET":
-		return render_template("add.html")
-	else:
-		username = request.form['username']
-		instagramfunctions.add_username(username)
-		return render_template("add.html", message="Username %s added!" % (username))
+		return redirect(url_for("register"))
 
 @app.route("/logout")
 def logout():
-	session.pop("loggedIn")
-	return redirect(url_for("index"))
+	if "admin" in session:
+		session.pop("admin")
+		return redirect(url_for("admin"))
+	else:
+		session.pop("loggedIn")
+		return redirect(url_for("index"))
+
+@app.route("/admin", methods = ["GET", "POST"])
+def admin():
+	if 'admin' not in session:
+		return redirect(url_for("adminlogin"))
+	if request.method == "GET":
+		return render_template("admin.html")
+	else:
+		username = request.form['username']
+		instagramfunctions.add_username(username)
+		return render_template("admin.html", message="Username %s added!" % (username))
+
+@app.route("/adminlogin", methods = ["GET", "POST"])
+def adminlogin():
+	if request.method == "GET":
+		return render_template("adminlogin.html")
+	else:
+		email = request.form["email"]
+		password = request.form["password"]
+		result = db.admindata.find_one({"email": email})
+		if result is not None and password == result["password"]:
+			session["admin"] = email
+			return redirect(url_for("admin"))
+		else:
+			return redirect(url_for("adminlogin"))
+
+@app.route("/adminregister", methods = ["GET", "POST"])
+def adminregister():
+	if request.method == "GET":
+		return render_template("adminregister.html")
+	else:
+		email = request.form["email"]
+		password = request.form["password"]
+		password2 = request.form["password2"]
+
+		result = db.admindata.find_one({"email": email})
+
+		if result is not None:
+			return redirect(url_for("adminregister"))
+		elif password == password2:
+			db.admindata.insert({"email": email, "password": password})
+			return redirect(url_for("adminlogin"))
+		else:
+			return redirect(url_for("adminregister"))
 
 @app.route("/updatedata")
 def updatedata():
