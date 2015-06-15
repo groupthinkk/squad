@@ -7,6 +7,7 @@ from gevent import monkey; monkey.patch_all()
 
 client_id='375701af44384b6da4230f343a528b92'
 client_secret='9620d4aef36f4e5b9139731497babcdb'
+access_token='2963667.375701a.3eae9d0208074293b2bfe5c0c917f1b1'
 
 client = MongoClient()
 db = client["SQUAD"]
@@ -14,7 +15,7 @@ db = client["SQUAD"]
 def create_user_urls(id_list):
 	l = []
 	for user_id in id_list:
-		url = ("https://api.instagram.com/v1/users/%s/media/recent/?client_id=%s") %(user_id, client_id)
+		url = ("https://api.instagram.com/v1/users/%s/media/recent/?access_token=%s") %(user_id, access_token)
 		l.append(url)
 	return l
 
@@ -30,9 +31,7 @@ def parse_user_data(json_data):
 		l.append(post)
 	return l
 
-def update():
-	db.accountdata.drop()
-	id_list = [(x['id']) for x in db.accountlist.find()]
+def pull_accountlist_data(id_list):
 	l = create_user_urls(id_list)
 	rs = (grequests.get(i) for i in l)
 	data = grequests.map(rs)
@@ -52,17 +51,21 @@ def update():
 				p["postdata"].append(d[y])
 				p["posts"] = [d[x]['id'], d[y]['id']]
 				p["userlist"] = []
-				p['rnd'] = random()
+				p["rnd"] = random()
 				inserts.append(p)
 	db.accountdata.insert(inserts)
-	db.accountdata.create_index('rnd')
-	print "done"
+
+def update():
+	db.accountdata.drop()
+	id_list = [(x['id']) for x in db.accountlist.find()]
+	pull_accountlist_data(id_list)
 
 def add_username(username):
-	url = ('https://api.instagram.com/v1/users/search?q=%s&client_id=%s') % (username, client_id)
-	j = requests.get(url).json()
+	url = ('https://api.instagram.com/v1/users/search?q=%s&access_token=%s') % (username, access_token)
+	j = requests.get(url)
+	j = j.json()
+	print j
 	data = j['data'][0]
-	if not data['username'] == username:
-		print "nothing happened"
-	else:
+	if data['username'] == username:
 		db.accountlist.insert({'name': username,'id':str(data['id'])})
+		pull_accountlist_data([data['id']])

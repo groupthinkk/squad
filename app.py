@@ -2,12 +2,18 @@ from flask import Flask
 from flask import render_template, url_for, redirect
 from flask import request, session
 from py import *
+import uuid
+import os
+from flask import send_from_directory
+
 
 from pymongo import MongoClient
 from hashlib import sha512
+UPLOAD_FOLDER = "comparisons"
 
 app = Flask(__name__)
 app.secret_key = sha512("cybersec").hexdigest()
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 env = app.jinja_env
 env.line_statement_prefix = '='
@@ -15,41 +21,57 @@ env.line_statement_prefix = '='
 client = MongoClient()
 db = client["SQUAD"]
 
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
+
 @app.route("/", methods = ["GET", "POST"])
 def index():
 	if request.method == "GET":
 		if 'loggedIn' in session:
 			post = dbfunctions.get_two(session["loggedIn"])
-			post1image = post[0]['image']
-			post1id = post[0]['id']
-			post2image = post[1]['image']
-			post2id = post[1]['id']
-			return render_template("home.html", post1image = post1image, post1id = post1id, post2image = post2image, post2id = post2id)
+			print post
+			post1image = post[0][0]['image']
+			post1id = post[0][0]['id']
+			post2image = post[0][1]['image']
+			post2id = post[0][1]['id']
+			posttype = post[1]
+			return render_template("home.html", post1image = post1image, post1id = post1id, post2image = post2image, post2id = post2id, posttype = posttype)
 		else:
 			return redirect(url_for("login"))
 	else:
-		posts = db.accountdata.find_one({'posts': [request.form['post1id'], request.form['post2id']]})
-		post1 = posts['postdata'][0]
-		post2 = posts['postdata'][1]
-		if post1['likes'] >= post2['likes']:
-			correct = 'post1'
+		if request.form['posttype'] == 'oo':
+			posts = db.accountdata.find_one({'posts': [request.form['post1id'], request.form['post2id']]})
+			post1 = posts['postdata'][0]
+			post2 = posts['postdata'][1]
+			if post1['likes'] >= post2['likes']:
+				correct = 'post1'
+			else:
+				correct = 'post2'
+			rw = False
+			if correct in request.form:
+				db.userdata.update({'email': session['loggedIn']}, {'$inc': {'right':1}})
+				rw = "correct"
+			else:
+				db.userdata.update({'email': session['loggedIn']}, {'$inc': {'wrong':1}})
+				rw = "wrong"
+			db.accountdata.update({'posts': [request.form['post1id'], request.form['post2id']]}, {'$push': {'userlist': session["loggedIn"]}})
+			dbfunctions.record_answer(session["loggedIn"], request.form['post1id'], request.form['post2id'], rw)
 		else:
-			correct = 'post2'
-		rw = False
-		if correct in request.form:
-			db.userdata.update({'email': session['loggedIn']}, {'$inc': {'right':1}})
-			rw = "correct"
-		else:
-			db.userdata.update({'email': session['loggedIn']}, {'$inc': {'wrong':1}})
-			rw = "wrong"
-		db.accountdata.update({'posts': [request.form['post1id'], request.form['post2id']]}, {'$push': {'userlist': session["loggedIn"]}})
-		dbfunctions.record_answer(session["loggedIn"], request.form['post1id'], request.form['post2id'], rw)
+			print 'posttype' + request.form['posttype']
+			if 'post1' in request.form:
+				answer = 'post1'
+			else:
+				answer = 'post2'
+			rw = "neither"
+			db.comparisiondata.update({'posts': [request.form['post1id'], request.form['post2id']]}, {'$push': {'userlist': session["loggedIn"]}})
+			dbfunctions.record_comparison(session['loggedIn'], request.form['post1id'], request.form['post2id'], answer)
 		post = dbfunctions.get_two(session["loggedIn"])
-		post1image = post[0]['image']
-		post1id = post[0]['id']
-		post2image = post[1]['image']
-		post2id = post[1]['id']
-		return render_template("home.html", post1image = post1image, post1id = post1id, post2image = post2image, post2id = post2id, rw = rw)
+		print post
+		post1image = post[0][0]['image']
+		post1id = post[0][0]['id']
+		post2image = post[0][1]['image']
+		post2id = post[0][1]['id']
+		posttype = post[1]
+		return render_template("home.html", post1image = post1image, post1id = post1id, post2image = post2image, post2id = post2id, rw = rw, posttype = posttype)
 
 @app.route("/leaderboard", methods = ["GET"])
 def leaderboard():
@@ -107,18 +129,54 @@ def logout():
 		session.pop("loggedIn")
 		return redirect(url_for("index"))
 
+def allowed_file(filename):
+	return '.' in filename and \
+    	filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+	return send_from_directory(app.config['UPLOAD_FOLDER'],
+    							filename)
+
 @app.route("/admin", methods = ["GET", "POST"])
 def admin():
 	if 'admin' not in session:
 		return redirect(url_for("adminlogin"))
+	print request.method
 	if request.method == "GET":
-		return render_template("admin.html")
+		comparisons = dbfunctions.get_nn_comparisons(session['admin'])
+		return render_template("admin.html", comparisons=comparisons)
 	else:
-		username = request.form['username']
-		instagramfunctions.add_username(username)
-		return render_template("admin.html", message="Username %s added!" % (username))
+		if 'addname' in request.form:
+			username = request.form['username']
+			instagramfunctions.add_username(username)
+			comparisons = dbfunctions.get_nn_comparisons(session['admin'])
+			return render_template("admin.html", message="Username %s added!" % (username), comparisons=comparisons)
+		else:
+			print "H"
+			print request.form
+			filename1 = str(uuid.uuid4())
+			filename2 = str(uuid.uuid4())
+			pic1 = request.files['pic1']
+			pic2 = request.files['pic2']
+			print pic1
+			print pic2
+			if pic1 and pic2 and allowed_file(pic1.filename) and allowed_file(pic2.filename):
+				print "here"
+				path1 = os.path.join(app.config['UPLOAD_FOLDER'], filename1 + "." + pic1.filename.rsplit('.', 1)[1])
+				path2 = os.path.join(app.config['UPLOAD_FOLDER'], filename2 + "." + pic2.filename.rsplit('.', 1)[1])
+				pic1.save(path1)
+				pic2.save(path2)
+				dbfunctions.insert_test_posts("uploads/" + filename1 + "." + pic1.filename.rsplit('.', 1)[1], 
+												"uploads/" + filename2 + "." + pic2.filename.rsplit('.', 1)[1],
+												filename1,
+												filename2,
+												session['admin'])
+				comparisons = dbfunctions.get_nn_comparisons(session['admin'])
+				print comparisons
+				return render_template("admin.html", comparisonmessage="Comparison added!", comparisons=comparisons)
 
-@app.route("/adminlogin", methods = ["GET", "POST"])
+@app.route("/admin/login", methods = ["GET", "POST"])
 def adminlogin():
 	if request.method == "GET":
 		return render_template("adminlogin.html")
@@ -132,7 +190,7 @@ def adminlogin():
 		else:
 			return redirect(url_for("adminlogin"))
 
-@app.route("/adminregister", methods = ["GET", "POST"])
+@app.route("/admin/register", methods = ["GET", "POST"])
 def adminregister():
 	if request.method == "GET":
 		return render_template("adminregister.html")
