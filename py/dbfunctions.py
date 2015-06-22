@@ -2,9 +2,15 @@ import grequests
 import requests
 from pymongo import MongoClient
 from random import random
+from math import ceil, factorial, pow
+from operator import itemgetter
 
-client = MongoClient()
-db = client["SQUAD"]
+client = MongoClient("ds061721.mongolab.com", 61721)
+db = client["squad"]
+db.authenticate("squad", "squadpass")
+
+#client = MongoClient()
+#db = client["SQUAD"]
 
 def get_two(username):
 	rand  = random()
@@ -26,7 +32,7 @@ def get_two(username):
 	if d is None:
 		d = db.accountdata.find_one({'userlist': {'$ne': username}, 'rnd': {'$lte': rand}})
 	if d is None:
-		return "you're out"
+		return False
 	return [d['postdata'], "oo"]
 
 def record_answer(username, id1, id2, right):
@@ -37,14 +43,18 @@ def record_answer(username, id1, id2, right):
 	db.useranswers.insert(d)
 
 def record_comparison(username, id1, id2, answer):
+	i = db.userdata.find_one({'email': username})
+	right = i['right']
+	wrong = i['wrong']
 	d = {}
 	d['username'] = username
 	d['choice'] = answer
+	d['percentage'] = round(float(right)/(wrong+right) * 100)
 	if answer == 'post1':
 		vote = 'vote1'
 	else:
 		vote = 'vote2'
-	db.comparisonsdata.update({'posts': [id1, id2]}, {'$push': {'responses': d}, '$push': {'userlist': username}, '$inc': {vote: 1}})
+	db.comparisonsdata.update({'posts': [id1, id2]}, {'$push': {'responses': d, 'userlist': username}, '$inc': {vote: 1}})
 
 def get_leaders():
 	rtn = []
@@ -54,7 +64,7 @@ def get_leaders():
 		wrong = user['wrong']
 		percentage = round(float(right)/(wrong+right) * 100) if right+wrong != 0 else 0
 		rtn.append([user['email'], percentage])
-	return rtn
+	return sorted(rtn, key=itemgetter(1), reverse=True)
 
 def insert_test_posts(pic1, pic2, id1, id2, user):
 	test = {}
@@ -79,10 +89,27 @@ def get_nn_comparisons(user):
 			votingpercentage = float(i['vote1'])/(i['vote1']+i['vote2'])*100 if i['vote1'] > i['vote2'] else float(i['vote2'])/(i['vote1']+i['vote2'])*100
 		else:
 			votingpercentage = 0
+		juror_percentage = get_jurors_theorem(len(i['responses']), sum([element['percentage'] for element in i['responses']])/len(i['responses'])) if len(i['responses']) != 0 else 0
 		l.append({
 			"pic1": i['pic1'], 
 			"pic2": i['pic2'], 
 			"winningimage": winningimage,
-			"votingpercentage": votingpercentage
+			"votingpercentage": votingpercentage,
+			"theorempercent": juror_percentage
 			})
 	return l
+
+def get_jurors_theorem(N, p):
+	m = int(ceil(N/2.0-1))+1 if N != 2 else 2
+	ans = 0
+	for i in range(m, N+1):
+		ans = factorial(N)/(factorial(N-i)*factorial(i))*pow(p, i)*pow(1-p, N-i)
+	return ans
+
+def get_instagram_accounts():
+	r = []
+	q = db.accountlist.find()
+	for entry in q:
+		r.append(entry['name'])
+	return r
+

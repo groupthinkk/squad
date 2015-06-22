@@ -5,7 +5,7 @@ from py import *
 import uuid
 import os
 from flask import send_from_directory
-
+from flask.ext.basicauth import BasicAuth
 
 from pymongo import MongoClient
 from hashlib import sha512
@@ -14,12 +14,20 @@ UPLOAD_FOLDER = "comparisons"
 app = Flask(__name__)
 app.secret_key = sha512("cybersec").hexdigest()
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['BASIC_AUTH_USERNAME'] = 'overlord'
+app.config['BASIC_AUTH_PASSWORD'] = 'squad'
 
 env = app.jinja_env
 env.line_statement_prefix = '='
 
-client = MongoClient()
-db = client["SQUAD"]
+basic_auth = BasicAuth(app)
+
+#client = MongoClient()
+#db = client["SQUAD"]
+
+client = MongoClient("ds061721.mongolab.com", 61721)
+db = client["squad"]
+db.authenticate("squad", "squadpass")
 
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
@@ -40,6 +48,8 @@ def index():
 	else:
 		if request.form['posttype'] == 'oo':
 			posts = db.accountdata.find_one({'posts': [request.form['post1id'], request.form['post2id']]})
+			if posts == False:
+				return render_template("home.html", rw = "nomore", posttype = posttype)
 			post1 = posts['postdata'][0]
 			post2 = posts['postdata'][1]
 			if post1['likes'] >= post2['likes']:
@@ -62,7 +72,6 @@ def index():
 			else:
 				answer = 'post2'
 			rw = "neither"
-			db.comparisiondata.update({'posts': [request.form['post1id'], request.form['post2id']]}, {'$push': {'userlist': session["loggedIn"]}})
 			dbfunctions.record_comparison(session['loggedIn'], request.form['post1id'], request.form['post2id'], answer)
 		post = dbfunctions.get_two(session["loggedIn"])
 		print post
@@ -142,19 +151,23 @@ def uploaded_file(filename):
 def admin():
 	if 'admin' not in session:
 		return redirect(url_for("adminlogin"))
-	print request.method
+	usernames = dbfunctions.get_instagram_accounts()
 	if request.method == "GET":
 		comparisons = dbfunctions.get_nn_comparisons(session['admin'])
-		return render_template("admin.html", comparisons=comparisons)
+		return render_template("admin.html", comparisons=comparisons, usernames=usernames)
 	else:
 		if 'addname' in request.form:
 			username = request.form['username']
-			instagramfunctions.add_username(username)
+			result = instagramfunctions.add_username(username)
+			if result:
+				message = "Username %s added!" % (username)
+				t = "Success"
+			else:
+				message = "Duplicate name or name does not exist"
+				t = "Failure"
 			comparisons = dbfunctions.get_nn_comparisons(session['admin'])
-			return render_template("admin.html", message="Username %s added!" % (username), comparisons=comparisons)
+			return render_template("admin.html", message=message,type=t , comparisons=comparisons, usernames=usernames)
 		else:
-			print "H"
-			print request.form
 			filename1 = str(uuid.uuid4())
 			filename2 = str(uuid.uuid4())
 			pic1 = request.files['pic1']
@@ -162,7 +175,6 @@ def admin():
 			print pic1
 			print pic2
 			if pic1 and pic2 and allowed_file(pic1.filename) and allowed_file(pic2.filename):
-				print "here"
 				path1 = os.path.join(app.config['UPLOAD_FOLDER'], filename1 + "." + pic1.filename.rsplit('.', 1)[1])
 				path2 = os.path.join(app.config['UPLOAD_FOLDER'], filename2 + "." + pic2.filename.rsplit('.', 1)[1])
 				pic1.save(path1)
@@ -173,8 +185,7 @@ def admin():
 												filename2,
 												session['admin'])
 				comparisons = dbfunctions.get_nn_comparisons(session['admin'])
-				print comparisons
-				return render_template("admin.html", comparisonmessage="Comparison added!", comparisons=comparisons)
+				return render_template("admin.html", comparisonmessage="Comparison added!", comparisons=comparisons, usernames=usernames)
 
 @app.route("/admin/login", methods = ["GET", "POST"])
 def adminlogin():
@@ -191,6 +202,7 @@ def adminlogin():
 			return redirect(url_for("adminlogin"))
 
 @app.route("/admin/register", methods = ["GET", "POST"])
+@basic_auth.required
 def adminregister():
 	if request.method == "GET":
 		return render_template("adminregister.html")

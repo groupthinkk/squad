@@ -15,6 +15,9 @@
       {% if rw is defined and rw == "neither" %}
         <div class="alert alert-info" role="alert">Thanks for taking a test post!</div>
       {% endif %}
+      = if rw is define and rw == "nomore"
+        <div class="alert alert-info" role="alert">No more comparisons!</div>
+      = endif
 				<h3>Which post do you think got more likes?</h3>
 			</div>
 		</div>
@@ -22,16 +25,20 @@
 		<div class="row">
       <input type=hidden name="posttype" value="{{posttype}}">
 			<div class="col-lg-6 col-sm-6 col-md-6">
+        = if post1iamge is defined
 				<div class="pic">
           <input class="img-responsive" name='post1' type="image" value="1" src="{{post1image}}" alt="First Image">
 				</div>
         <input type=hidden name="post1id" value="{{post1id}}">
+        = endif
 			</div>
 			<div class="col-lg-6 col-sm-6 col-md-6">
-				<div class="pic">
+        = if post2image is defined
+				<div class="pic">    
           <input class="img-responsive" name='post2' type="image" value="1" src="{{post2image}}" alt="Second Image">
 				</div>
         <input type=hidden name="post2id" value="{{post2id}}">
+        = endif
 			</div>
 		</div>
     </form>
