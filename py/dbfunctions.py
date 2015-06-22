@@ -5,8 +5,8 @@ from random import random
 from math import ceil, factorial, pow
 from operator import itemgetter
 
-client = MongoClient("ds061721.mongolab.com", 61721)
-db = client["squad"]
+client = MongoClient("ds041841.mongolab.com", 41841)
+db = client["heroku_7jhh76p4"]
 db.authenticate("squad", "squadpass")
 
 #client = MongoClient()

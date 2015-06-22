@@ -12,8 +12,8 @@ access_token='2963667.375701a.3eae9d0208074293b2bfe5c0c917f1b1'
 #client = MongoClient()
 #db = client["SQUAD"]
 
-client = MongoClient("ds061721.mongolab.com", 61721)
-db = client["squad"]
+client = MongoClient("ds041841.mongolab.com", 41841)
+db = client["heroku_7jhh76p4"]
 db.authenticate("squad", "squadpass")
 
 def create_user_urls(id_list):
