@@ -165,6 +165,7 @@ def admin():
 			else:
 				message = "Duplicate name or name does not exist"
 				t = "Failure"
+			usernames = dbfunctions.get_instagram_accounts()
 			comparisons = dbfunctions.get_nn_comparisons(session['admin'])
 			return render_template("admin.html", message=message,type=t , comparisons=comparisons, usernames=usernames)
 		else:

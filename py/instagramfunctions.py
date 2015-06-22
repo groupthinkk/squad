@@ -66,7 +66,7 @@ def update():
 	pull_accountlist_data(id_list)
 
 def add_username(username):
-	if db.collection.find({"name": usenrmae}).limit(1) == None:
+	if db.collection.find({"name": username}).limit(1) == None:
 		return False
 	url = ('https://api.instagram.com/v1/users/search?q=%s&access_token=%s') % (username, access_token)
 	j = requests.get(url)
