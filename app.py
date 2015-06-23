@@ -6,6 +6,9 @@ import uuid
 import os
 from flask import send_from_directory
 from flask.ext.basicauth import BasicAuth
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 from pymongo import MongoClient
 from hashlib import sha512
@@ -177,14 +180,12 @@ def admin():
 			print pic1
 			print pic2
 			if pic1 and pic2 and allowed_file(pic1.filename) and allowed_file(pic2.filename):
-				path1 = os.path.join(app.config['UPLOAD_FOLDER'], filename1 + "." + pic1.filename.rsplit('.', 1)[1])
-				path2 = os.path.join(app.config['UPLOAD_FOLDER'], filename2 + "." + pic2.filename.rsplit('.', 1)[1])
-				pic1.save(path1)
-				pic2.save(path2)
-				dbfunctions.insert_test_posts("uploads/" + filename1 + "." + pic1.filename.rsplit('.', 1)[1], 
-												"uploads/" + filename2 + "." + pic2.filename.rsplit('.', 1)[1],
-												filename1,
-												filename2,
+				pic1response = cloudinary.uploader.upload(pic1)
+				pic2response = cloudinary.uploader.upload(pic2)
+				dbfunctions.insert_test_posts(pic1response['url'], 
+												pic2response['url'],
+												pic1response['public_id'],
+												pic2response['public_id'],
 												session['admin'])
 				comparisons = dbfunctions.get_nn_comparisons(session['admin'])
 				return render_template("admin.html", comparisonmessage="Comparison added!", comparisons=comparisons, usernames=usernames)

@@ -1,4 +1,5 @@
 pidfile
+.env
 
 # Compiled source #
 ###################
