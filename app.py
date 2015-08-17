@@ -3,7 +3,6 @@ from flask import render_template, url_for, redirect
 from flask import request, session
 from py import *
 import uuid
-import os
 from flask import send_from_directory
 from flask.ext.basicauth import BasicAuth
 import cloudinary
@@ -39,7 +38,6 @@ def index():
 	if request.method == "GET":
 		if 'loggedIn' in session:
 			post = dbfunctions.get_two(session["loggedIn"])
-			print post
 			post1image = post[0][0]['image']
 			post1id = post[0][0]['id']
 			post2image = post[0][1]['image']
@@ -69,7 +67,6 @@ def index():
 			db.accountdata.update({'posts': [request.form['post1id'], request.form['post2id']]}, {'$push': {'userlist': session["loggedIn"]}})
 			dbfunctions.record_answer(session["loggedIn"], request.form['post1id'], request.form['post2id'], rw)
 		else:
-			print 'posttype' + request.form['posttype']
 			if 'post1' in request.form:
 				answer = 'post1'
 			else:
@@ -77,7 +74,6 @@ def index():
 			rw = "neither"
 			dbfunctions.record_comparison(session['loggedIn'], request.form['post1id'], request.form['post2id'], answer)
 		post = dbfunctions.get_two(session["loggedIn"])
-		print post
 		post1image = post[0][0]['image']
 		post1id = post[0][0]['id']
 		post2image = post[0][1]['image']
@@ -96,7 +92,6 @@ def stats():
 	right = user['right']
 	wrong = user['wrong']
 	percentage = round(float(right)/(wrong+right) * 100)
-	print right, wrong, percentage
 	return render_template("stats.html", right=right, wrong=wrong, percentage=percentage)
 
 @app.route("/login", methods = ["GET", "POST"])
@@ -173,12 +168,8 @@ def admin():
 			comparisons = dbfunctions.get_nn_comparisons(session['admin'])
 			return render_template("admin.html", message=message,type=t , comparisons=comparisons, usernames=usernames)
 		else:
-			filename1 = str(uuid.uuid4())
-			filename2 = str(uuid.uuid4())
 			pic1 = request.files['pic1']
 			pic2 = request.files['pic2']
-			print pic1
-			print pic2
 			if pic1 and pic2 and allowed_file(pic1.filename) and allowed_file(pic2.filename):
 				pic1response = cloudinary.uploader.upload(pic1)
 				pic2response = cloudinary.uploader.upload(pic2)
