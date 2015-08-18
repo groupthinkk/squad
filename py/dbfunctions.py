@@ -15,14 +15,22 @@ db.authenticate("sweyn", "sweynsquad")
 
 API_URL = "http://localhost:9991/api/v0/instagram/"
 
-#client = MongoClient()
-#db = client["SQUAD"]
+def get_worker_ids_past_tasks():
+	yield []
+
+def log_worker(worker_id):
+	db.userdata.insert({
+		"worker_id": worker_id,
+		"right": 0,
+		"wrong":0
+		})
 
 def get_oo_comparison(username):
-	past_comparisons = db.useranswers.find({'username': username})
+	past_comparisons = db.useranswers.find({'worker_id': username})
 	call_url = API_URL + "posts/random?api_key=CazMCDN5G2SuFhET3BuXdLIW01PQxisNLwKRIw?exclude="
 	comparison_id_string = ','.join([x['comp_id'] for x in past_comparisons])
 	request_url = call_url + comparison_id_string
+	print request_url
 	resp = requests.get(request_url)
 	try:
 		j = resp.json()
@@ -49,7 +57,7 @@ def get_nn_comparison(username):
 
 def get_two(username):
 	rand  = random()
-	user = db.userdata.find_one({'email': username})
+	user = db.userdata.find_one({'worker_id': username})
 	right = user['right']
 	wrong = user['wrong']
 	percentage = round(float(right)/(wrong+right) * 100) if right+wrong != 0 else 0
@@ -64,18 +72,18 @@ def get_oo_comp_by_id(id):
 
 def record_answer(username, right, id, seconds_used):
 	d = {}
-	d['username'] = username
+	d['worker_id'] = username
 	d['comp_id'] = id
 	d['correct'] = 1 if right == "correct" else 0
 	d['seconds_used'] = seconds_used
 	db.useranswers.insert(d)
 
 def record_comparison(username, answer, id, seconds_used):
-	i = db.userdata.find_one({'email': username})
+	i = db.userdata.find_one({'worker_id': username})
 	right = i['right']
 	wrong = i['wrong']
 	d = {}
-	d['username'] = username
+	d['worker_id'] = username
 	d['choice'] = answer
 	d['percentage'] = round(float(right)/(wrong+right) * 100)
 	if answer == 'post1':
@@ -91,7 +99,7 @@ def get_leaders():
 		right = user['right']
 		wrong = user['wrong']
 		percentage = round(float(right)/(wrong+right) * 100) if right+wrong != 0 else 0
-		rtn.append([user['email'], percentage])
+		rtn.append([user['worker_id'], percentage])
 	return sorted(rtn, key=itemgetter(1), reverse=True)
 
 def insert_test_posts(pic1, pic2, id1, id2, user):

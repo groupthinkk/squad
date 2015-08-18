@@ -1,1 +1,1 @@
-__all__ = ['instagramfunctions', 'dbfunctions']
+__all__ = ['dbfunctions']
