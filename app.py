@@ -2,8 +2,6 @@ from flask import Flask
 from flask import render_template, url_for, redirect
 from flask import request, session
 from py import *
-import uuid
-from flask import send_from_directory
 from flask.ext.basicauth import BasicAuth
 import cloudinary
 import cloudinary.uploader
@@ -11,11 +9,9 @@ import cloudinary.api
 
 from pymongo import MongoClient
 from hashlib import sha512
-UPLOAD_FOLDER = "comparisons"
 
 app = Flask(__name__)
 app.secret_key = sha512("cybersec").hexdigest()
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['BASIC_AUTH_USERNAME'] = 'overlord'
 app.config['BASIC_AUTH_PASSWORD'] = 'squad'
 
@@ -37,23 +33,22 @@ ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 def index():
 	if request.method == "GET":
 		if 'loggedIn' in session:
-			post = dbfunctions.get_two(session["loggedIn"])
-			post1image = post[0][0]['image']
-			post1id = post[0][0]['id']
-			post2image = post[0][1]['image']
-			post2id = post[0][1]['id']
-			posttype = post[1]
-			return render_template("home.html", post1image = post1image, post1id = post1id, post2image = post2image, post2id = post2id, posttype = posttype)
+			posts = dbfunctions.get_two(session["loggedIn"])
+			if posts == False:
+				return render_template("home.html", rw = "nomore", posttype = '', compid = 0)
+			post1image = posts[0]
+			post2image = posts[1]
+			posttype = posts[2]
+			compid = posts[3]
+			return render_template("home.html", post1image = post1image, post2image = post2image, posttype = posttype, compid=compid)
 		else:
 			return redirect(url_for("login"))
 	else:
 		if request.form['posttype'] == 'oo':
-			posts = db.accountdata.find_one({'posts': [request.form['post1id'], request.form['post2id']]})
-			if posts == False:
-				return render_template("home.html", rw = "nomore", posttype = posttype)
-			post1 = posts['postdata'][0]
-			post2 = posts['postdata'][1]
-			if post1['likes'] >= post2['likes']:
+			posts = dbfunctions.get_oo_comp_by_id(request.form['compid'])
+			post1 = posts['posts'][0][0]
+			post2 = posts['posts'][0][1]
+			if post1['likes_count'] >= post2['likes_count']:
 				correct = 'post1'
 			else:
 				correct = 'post2'
@@ -64,22 +59,22 @@ def index():
 			else:
 				db.userdata.update({'email': session['loggedIn']}, {'$inc': {'wrong':1}})
 				rw = "wrong"
-			db.accountdata.update({'posts': [request.form['post1id'], request.form['post2id']]}, {'$push': {'userlist': session["loggedIn"]}})
-			dbfunctions.record_answer(session["loggedIn"], request.form['post1id'], request.form['post2id'], rw)
+			dbfunctions.record_answer(session["loggedIn"], rw, request.form['compid'], request.form['secondsused'])
 		else:
 			if 'post1' in request.form:
 				answer = 'post1'
 			else:
 				answer = 'post2'
 			rw = "neither"
-			dbfunctions.record_comparison(session['loggedIn'], request.form['post1id'], request.form['post2id'], answer)
-		post = dbfunctions.get_two(session["loggedIn"])
-		post1image = post[0][0]['image']
-		post1id = post[0][0]['id']
-		post2image = post[0][1]['image']
-		post2id = post[0][1]['id']
-		posttype = post[1]
-		return render_template("home.html", post1image = post1image, post1id = post1id, post2image = post2image, post2id = post2id, rw = rw, posttype = posttype)
+			dbfunctions.record_comparison(session['loggedIn'], answer, request.form['compid'], request.form['secondsused'])
+		posts = dbfunctions.get_two(session["loggedIn"])
+		if posts == False:
+			return render_template("home.html", rw = "nomore", posttype = '', compid = 0)
+		post1image = posts[0]
+		post2image = posts[1]
+		posttype = posts[2]
+		compid = posts[3]
+		return render_template("home.html", post1image = post1image, post2image = post2image, rw = rw, posttype = posttype, compid=compid)
 
 @app.route("/leaderboard", methods = ["GET"])
 def leaderboard():
@@ -141,10 +136,6 @@ def allowed_file(filename):
 	return '.' in filename and \
     	filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
-@app.route('/uploads/<filename>')
-def uploaded_file(filename):
-	return send_from_directory(app.config['UPLOAD_FOLDER'],
-    							filename)
 
 @app.route("/admin", methods = ["GET", "POST"])
 def admin():
