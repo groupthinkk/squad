@@ -45,15 +45,17 @@ def index():
 			return redirect(url_for("login"))
 	else:
 		if request.form['posttype'] == 'oo':
+			print request.form
 			posts = dbfunctions.get_oo_comp_by_id(request.form['compid'])
 			post1 = posts['posts'][0][0]
 			post2 = posts['posts'][0][1]
+			print post1['likes_count'], post2['likes_count']
 			if post1['likes_count'] >= post2['likes_count']:
 				correct = 'post1'
 			else:
 				correct = 'post2'
 			rw = False
-			if correct in request.form:
+			if correct in request.form or correct + ".x" in request.form:
 				db.userdata.update({'email': session['loggedIn']}, {'$inc': {'right':1}})
 				rw = "correct"
 			else:

@@ -16,11 +16,14 @@ API_URL = "http://localhost:9991/api/v0/instagram/"
 
 def get_oo_comparison(username):
 	past_comparisons = db.useranswers.find({'username': username})
-	call_url = API_URL + "posts/random?exclude="
+	call_url = API_URL + "posts/random?api_key=CazMCDN5G2SuFhET3BuXdLIW01PQxisNLwKRIw?exclude="
 	comparison_id_string = ','.join([x['comp_id'] for x in past_comparisons])
 	request_url = call_url + comparison_id_string
 	resp = requests.get(request_url)
-	j = resp.json()
+	try:
+		j = resp.json()
+	except ValueError:
+		return False
 	di = []
 	di.append(j['posts'][0][0]['image_url'])
 	di.append(j['posts'][0][1]['image_url'])
@@ -52,7 +55,7 @@ def get_two(username):
 		return get_oo_comparison(username)
 
 def get_oo_comp_by_id(id):
-	request_url = API_URL + 'posts/random?id=' + id
+	request_url = API_URL + 'posts/random?api_key=CazMCDN5G2SuFhET3BuXdLIW01PQxisNLwKRIw?id=' + id
 	return requests.get(request_url).json()
 
 def record_answer(username, right, id, seconds_used):

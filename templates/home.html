@@ -15,23 +15,25 @@
 <div class="container">
 		<div class="row">
 			<div class="col-lg-12 col-sm-12 col-md-12 titlebox">
-      {% if rw is defined and rw == "correct" %}
+      = if rw is defined and rw == "correct"
         <div class="alert alert-success" role="alert">Congratulations! That was correct!</div>
-      {% endif %}
-      {% if rw is defined and rw == "wrong" %}
+      = endif
+      = if rw is defined and rw == "wrong"
         <div class="alert alert-danger" role="alert">Oh no! That was wrong!</div>
-      {% endif %}
-      {% if rw is defined and rw == "neither" %}
+      = endif
+      = if rw is defined and rw == "neither"
         <div class="alert alert-info" role="alert">Thanks for taking a test post!</div>
-      {% endif %}
+      = endif
       = if rw is defined and rw == "nomore"
         <div class="alert alert-info" role="alert">No more comparisons!</div>
       = endif
-      <div>
+      = if rw != "nomore"
+        <div>
 				<h3>Which post do you think got more likes?</h3>
         <div id="piediv">
         </div>
-      </div>
+        </div>
+      = endif
 			</div>
 		</div>
     <form method='post'>
@@ -61,6 +63,7 @@
 = endblock
 
 = block footer
+= if rw != "nomore"
 <script src="static/js/jquery.pietimer.js"></script>
 <script type="text/javascript">
   $('#piediv').pietimer({
@@ -71,7 +74,7 @@
 },
 function(){
     console.log($('#piediv').pietimer("get_seconds"));
-    location.reload();
+    window.location.reload(true); 
 });
 window.onload = function(){
   $('#piediv').pietimer("start"); 
@@ -82,4 +85,5 @@ window.onload = function(){
   }, 1000);
 }
 </script>
+= endif
 = endblock
