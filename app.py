@@ -23,9 +23,13 @@ basic_auth = BasicAuth(app)
 #client = MongoClient()
 #db = client["SQUAD"]
 
-client = MongoClient("ds041841.mongolab.com", 41841)
-db = client["heroku_7jhh76p4"]
-db.authenticate("squad", "squadpass")
+#client = MongoClient("ds041841.mongolab.com", 41841)
+#db = client["heroku_7jhh76p4"]
+#db.authenticate("squad", "squadpass")
+
+client = MongoClient("ds031903.mongolab.com", 31903)
+db = client["squadtesting"]
+db.authenticate("sweyn", "sweynsquad")
 
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
@@ -45,11 +49,9 @@ def index():
 			return redirect(url_for("login"))
 	else:
 		if request.form['posttype'] == 'oo':
-			print request.form
 			posts = dbfunctions.get_oo_comp_by_id(request.form['compid'])
 			post1 = posts['posts'][0][0]
 			post2 = posts['posts'][0][1]
-			print post1['likes_count'], post2['likes_count']
 			if post1['likes_count'] >= post2['likes_count']:
 				correct = 'post1'
 			else:

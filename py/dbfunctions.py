@@ -5,9 +5,13 @@ from random import random
 from math import ceil, factorial, pow
 from operator import itemgetter
 
-client = MongoClient("ds041841.mongolab.com", 41841)
-db = client["heroku_7jhh76p4"]
-db.authenticate("squad", "squadpass")
+#client = MongoClient("ds041841.mongolab.com", 41841)
+#db = client["heroku_7jhh76p4"]
+#db.authenticate("squad", "squadpass")
+
+client = MongoClient("ds031903.mongolab.com", 31903)
+db = client["squadtesting"]
+db.authenticate("sweyn", "sweynsquad")
 
 API_URL = "http://localhost:9991/api/v0/instagram/"
 
