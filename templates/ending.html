@@ -1,0 +1,16 @@
+= extends "layout.html"
+
+= block body
+<div class="container">
+    <form action="{{ amazon_host }}" method="POST">
+		<div class="row">
+            <input type="hidden" id="assignmentId" value="{{ assignment_id }}" name="assignmentId"/>
+            <br/>
+            <input type="hidden" id="workerId" value="{{ worker_id }}" name="workerId"/>
+            <input type="hidden" id="hitId" value="{{ hit_id }}" name="hitId"/>
+            <input type="hidden" id="finishId" value="{{ finish_id }}" name="finishId"/>
+        	<button class="btn btn-lg btn-primary btn-block" value="start" type="submit">Finish HIT</button>
+		</div>
+    </form>
+</div>
+= endblock

@@ -16,7 +16,7 @@ connection = MTurkConnection(aws_access_key_id=AWS_ACCESS_KEY_ID,
                              host=HOST,
                              debug=1)
 
-url = "https://google.com"
+url = "https://example.com"
 title = "Describe a picture in your own words (COMPLETE THIS TASK ONLY ONCE!)"
 description = "COMPLETE THIS TASK ONLY ONCE! All submissions after the first will be rejected"
 keywords = ["easy"]
