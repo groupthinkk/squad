@@ -13,7 +13,7 @@ client = MongoClient("ds031903.mongolab.com", 31903)
 db = client["squadtesting"]
 db.authenticate("sweyn", "sweynsquad")
 
-API_URL = "http://localhost:9991/api/v0/instagram/"
+API_URL = "http://52.26.68.122:8000/api/v0/instagram/"
 
 def get_worker_ids_past_tasks():
 	yield db.finishedusersids.find()
@@ -29,9 +29,12 @@ def log_finished_worker(worker_id, hash):
 
 def get_oo_comparison(username):
 	past_comparisons = db.useranswers.find({'worker_id': username})
-	call_url = API_URL + "posts/random?api_key=CazMCDN5G2SuFhET3BuXdLIW01PQxisNLwKRIw?exclude="
+	call_url = API_URL + "posts/random?api_key=CazMCDN5G2SuFhET3BuXdLIW01PQxisNLwKRIw" 
 	comparison_id_string = ','.join([x['comp_id'] for x in past_comparisons])
-	request_url = call_url + comparison_id_string
+	if comparison_id_string != "":
+		request_url = call_url + "?exclude=" + comparison_id_string
+	else:
+		request_url = call_url
 	print request_url
 	resp = requests.get(request_url)
 	try:
@@ -39,6 +42,7 @@ def get_oo_comparison(username):
 	except ValueError:
 		return False
 	di = []
+	print j
 	di.append(j['posts'][0][0]['image_url'])
 	di.append(j['posts'][0][1]['image_url'])
 	di.append('oo')
