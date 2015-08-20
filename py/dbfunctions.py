@@ -15,17 +15,24 @@ db.authenticate("sweyn", "sweynsquad")
 
 API_URL = "http://54.200.77.76/api/v0/instagram/"
 
-def get_worker_ids_past_tasks():
-	yield db.finishedusersids.find()
+def get_worker_id_past_tasks(worker_id, hit_id):
+	return db.finishedusersids.find({"worker_id": worker_id,"hit_ids": hit_id}).count() != 0
 
-def get_num_comparisons(worker_id):
-	return db.useranswers.find({'worker_id': worker_id}).count()
+def get_num_comparisons(worker_id, hit_id):
+	return db.useranswers.find({'worker_id': worker_id, 'hit_id': hit_id}).count()
 
-def log_finished_worker(worker_id, hash):
-	d = {}
-	d['worker_id'] = worker_id
-	d['hashlist']
-	d['right'] = db.useranswers
+def log_finished_worker(worker_id, hit_id):
+	q = db.finishedusersids.find_one({'worker_id': worker_id})
+	if q != None:
+		q['right'] = db.useranswers.find({"worker_id": worker_id, "correct": 1}).count() * 1.0 / db.useranswers.find({"worker_id": worker_id}).count()
+		q['hit_ids'].append(hit_id)
+		db.finishedusersids.update(q)
+	else:
+		d = {}
+		d['worker_id'] = worker_id
+		d['hit_ids'] = [hit_id]
+		d['right'] = db.useranswers.find({"worker_id": worker_id, "correct": 1}).count() * 1.0 / db.useranswers.find({"worker_id": worker_id}).count()
+		db.finishedusersids.insert(d)
 
 def get_oo_comparison(username):
 	past_comparisons = db.useranswers.find({'worker_id': username})
@@ -58,9 +65,10 @@ def get_oo_comp_by_id(id):
 	request_url = API_URL + 'posts/random?api_key=CazMCDN5G2SuFhET3BuXdLIW01PQxisNLwKRIw&id=' + id
 	return requests.get(request_url).json()
 
-def record_answer(username, right, id, seconds_used):
+def record_answer(worker_id, hit_id, right, id, seconds_used):
 	d = {}
-	d['worker_id'] = username
+	d['worker_id'] = worker_id
+	d['hit_id'] = hit_id
 	d['comp_id'] = id
 	d['correct'] = 1 if right == "correct" else 0
 	d['seconds_used'] = seconds_used

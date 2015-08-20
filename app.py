@@ -44,33 +44,25 @@ ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 @app.route("/", methods = ["GET", "POST"])
 def index():
 	if request.method == "GET":
-		print "get"
-		if request.args.get("assignmentId") == "ASSIGNMENT_ID_NOT_AVAILABLE":
-			return "You haven't accepted the HIT yet"
-		worker_id = request.args.get("workerId", "")
-		if worker_id in dbfunctions.get_worker_ids_past_tasks():
-			return "You already did this hit"
-		else:
-			#dbfunctions.log_worker(worker_id)
-			pass
-		print request.args
 		session["worker_id"] = request.args.get("workerId", "")
 		session["assignment_id"] =  request.args.get("assignmentId", "")
 		session["amazon_host"] = request.args.get("turkSubmitTo", "") + "/mturk/externalSubmit"
 		session["hit_id"] = request.args.get("hitId", "")
+
+		if request.args.get("assignmentId") == "ASSIGNMENT_ID_NOT_AVAILABLE":
+			return "You haven't accepted the HIT yet"
+		worker_id = request.args.get("workerId", "")
+		if dbfunctions.get_worker_id_past_tasks(session['worker_id'], session['hit_id']):
+			return "You already did this hit"
 		return render_template("landing.html")
 	else:
-		print "post"
 		rw = None
 		if 'posttype' in request.form and request.form['posttype'] == 'oo':
-			#posts = dbfunctions.get_oo_comp_by_id(request.form['compid'])
 			post1likes = session['post1likes']
 			post2likes = session['post2likes']
 			session['post1likes'] = ''
 			session.pop('post1likes', None)
 			session.pop('post2likes', None)
-			#post1 = posts['posts'][0][0]
-			#post2 = posts['posts'][0][1]
 			if post1likes >= post2likes:
 				correct = 'post1'
 			else:
@@ -80,13 +72,13 @@ def index():
 				rw = "correct"
 			else:
 				rw = "wrong"
-			dbfunctions.record_answer(session["worker_id"], rw, request.form['compid'], request.form['secondsused'])
-		if dbfunctions.get_num_comparisons(session["worker_id"]) >= NUM_COMPARISONS:
+			dbfunctions.record_answer(session["worker_id"], session["hit_id"], rw, request.form['compid'], request.form['secondsused'])
+		if dbfunctions.get_num_comparisons(session["worker_id"], session['hit_id']) >= NUM_COMPARISONS:
 			assignment_id = session['assignment_id']
 			worker_id = session['worker_id']
 			hit_id = session['hit_id']
 			amazon_host = session['amazon_host']
-			finish_id = 0
+			finish_id = dbfunctions.log_finished_worker(worker_id, hit_id)
 			return render_template("ending.html", assignment_id=assignment_id, worker_id=worker_id, hit_id=hit_id, finish_id=finish_id, amazon_host=amazon_host)
 		return render_new_post(session['worker_id'], rw)
 

@@ -26,7 +26,7 @@ amount = 0.05
 questionform = ExternalQuestion(url, frame_height)
 
 
-for _ in xrange(50):
+for _ in xrange(1):
     create_hit_result = connection.create_hit(
         title=title,
         description=description,
