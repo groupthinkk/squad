@@ -17,7 +17,7 @@ connection = MTurkConnection(aws_access_key_id=AWS_ACCESS_KEY_ID,
                              debug=1)
 
 url = "https://squadtest.herokuapp.com/"
-title = "Compare "
+title = "Compare 100 sets of 2 Instagram posts to guess which performed better"
 description = """You will be comparing sets of two posts from Instagram and anwering which received more likes. 
 
 There are 100 sets of comparisons in this HIT. You will have at most 10 seconds to complete each comparison. The whole HIT will take at most 15 minutes.
