@@ -18,10 +18,10 @@ connection = MTurkConnection(aws_access_key_id=AWS_ACCESS_KEY_ID,
 
 url = "https://squadtest.herokuapp.com/"
 title = "This is a test"
-description = "COMPLETE THIS TASK ONLY ONCE! All submissions after the first will be rejected"
+description = """You will be comparing sets of two posts from Instagram and anwering which received more likes. If you have the highest score from all those that answer this hit, you'll receive a bonus of $2. COMPLETE THIS TASK ONLY ONCE! All submissions after the first will be rejected."""
 keywords = ["easy", "survey", "study", "bonus", "image", "images", "compare", "comparisons", "collection", "data", "research", "listings", "simple", "photo", "answer", "opinion", "question"]
 frame_height = 800
-amount = 1
+amount = .50
 
 questionform = ExternalQuestion(url, frame_height)
 
