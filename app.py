@@ -17,7 +17,7 @@ env.line_statement_prefix = '='
 
 basic_auth = BasicAuth(app)
 
-NUM_COMPARISONS = 100
+NUM_COMPARISONS = 3
 
 @app.route("/", methods = ["GET", "POST"])
 def index():
@@ -62,7 +62,8 @@ def index():
 		return render_new_post(session['worker_id'], session['hit_id'], rw)
 
 def render_new_post(worker_id, hit_id, rw = None):
-	if dbfunctions.get_num_comparisons(worker_id, hit_id) >= NUM_COMPARISONS:
+	posts = dbfunctions.get_two(worker_id)
+	if posts == False or dbfunctions.get_num_comparisons(worker_id, hit_id) >= NUM_COMPARISONS:
 		assignment_id = session['assignment_id']
 		worker_id = session['worker_id']
 		hit_id = session['hit_id']
@@ -70,7 +71,6 @@ def render_new_post(worker_id, hit_id, rw = None):
 		rater_percentage = dbfunctions.log_finished_worker(worker_id, hit_id)
 		session.clear()
 		return render_template("ending.html", assignment_id=assignment_id, worker_id=worker_id, hit_id=hit_id, rater_percentage=rater_percentage, amazon_host=amazon_host)
-	posts = dbfunctions.get_two(worker_id)
 	session['post1likes'] = posts[0]
 	session['post2likes'] = posts[1]
 	post1image = posts[2]
