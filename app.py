@@ -44,20 +44,23 @@ ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 @app.route("/", methods = ["GET", "POST"])
 def index():
 	if request.method == "GET":
-			if request.args.get("assignmentId") == "ASSIGNMENT_ID_NOT_AVAILABLE":
-				return "You haven't accepted the HIT yet"
-			worker_id = request.args.get("workerId", "")
-			if worker_id in dbfunctions.get_worker_ids_past_tasks():
-				return "You already did this hit"
-			else:
-				#dbfunctions.log_worker(worker_id)
-				pass
-			session["worker_id"] = request.args.get("workerId", "")
-			session["assignment_id"] =  request.args.get("assignmentId", "")
-			session["amazon_host"] = AMAZON_HOST
-			session["hit_id"] = request.args.get("hitId", "")
-			return render_template("landing.html")
+		print "get"
+		if request.args.get("assignmentId") == "ASSIGNMENT_ID_NOT_AVAILABLE":
+			return "You haven't accepted the HIT yet"
+		worker_id = request.args.get("workerId", "")
+		if worker_id in dbfunctions.get_worker_ids_past_tasks():
+			return "You already did this hit"
+		else:
+			#dbfunctions.log_worker(worker_id)
+			pass
+		print request.args
+		session["worker_id"] = request.args.get("workerId", "")
+		session["assignment_id"] =  request.args.get("assignmentId", "")
+		session["amazon_host"] = request.args.get("turkSubmitTo", "")
+		session["hit_id"] = request.args.get("hitId", "")
+		return render_template("landing.html")
 	else:
+		print "post"
 		rw = None
 		if 'posttype' in request.form and request.form['posttype'] == 'oo':
 			#posts = dbfunctions.get_oo_comp_by_id(request.form['compid'])
@@ -82,9 +85,9 @@ def index():
 			assignment_id = session['assignment_id']
 			worker_id = session['worker_id']
 			hit_id = session['hit_id']
+			amazon_host = session['amazon_host']
 			finish_id = 0
-
-			return render_template("ending.html", assignment_id=assignment_id, worker_id=worker_id, hit_id=hit_id, finish_id=finish_id)
+			return render_template("ending.html", assignment_id=assignment_id, worker_id=worker_id, hit_id=hit_id, finish_id=finish_id, amazon_host=amazon_host)
 		return render_new_post(session['worker_id'], rw)
 
 def render_new_post(worker_id, rw = None):

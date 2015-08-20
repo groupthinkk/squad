@@ -16,7 +16,7 @@ connection = MTurkConnection(aws_access_key_id=AWS_ACCESS_KEY_ID,
                              host=HOST,
                              debug=1)
 
-url = "https://example.com"
+url = "https://squadtest.herokuapp.com/"
 title = "Describe a picture in your own words (COMPLETE THIS TASK ONLY ONCE!)"
 description = "COMPLETE THIS TASK ONLY ONCE! All submissions after the first will be rejected"
 keywords = ["easy"]
@@ -26,7 +26,7 @@ amount = 0.05
 questionform = ExternalQuestion(url, frame_height)
 
 
-for _ in xrange(1):
+for _ in xrange(50):
     create_hit_result = connection.create_hit(
         title=title,
         description=description,
