@@ -3,12 +3,8 @@ from flask import render_template, url_for, redirect
 from flask import request, session
 from py import *
 from flask.ext.basicauth import BasicAuth
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
-import os
+from datetime import datetime
 
-from pymongo import MongoClient
 from hashlib import sha512
 
 app = Flask(__name__)
@@ -21,25 +17,7 @@ env.line_statement_prefix = '='
 
 basic_auth = BasicAuth(app)
 
-if os.environ.get("DEV_ENV"):
-	AMAZON_HOST = "https://workersandbox.mturk.com/mturk/externalSubmit"
-else:
-	AMAZON_HOST = "https://www.mturk.com/mturk/externalSubmit"
-
-NUM_COMPARISONS = 1
-
-#client = MongoClient()
-#db = client["SQUAD"]
-
-#client = MongoClient("ds041841.mongolab.com", 41841)
-#db = client["heroku_7jhh76p4"]
-#db.authenticate("squad", "squadpass")
-
-client = MongoClient("ds031903.mongolab.com", 31903)
-db = client["squadtesting"]
-db.authenticate("sweyn", "sweynsquad")
-
-ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
+NUM_COMPARISONS = 3
 
 @app.route("/", methods = ["GET", "POST"])
 def index():
@@ -51,38 +29,47 @@ def index():
 
 		if request.args.get("assignmentId") == "ASSIGNMENT_ID_NOT_AVAILABLE":
 			return "You haven't accepted the HIT yet"
-		worker_id = request.args.get("workerId", "")
 		if dbfunctions.get_worker_id_past_tasks(session['worker_id'], session['hit_id']):
 			return "You already did this hit"
 		return render_template("landing.html")
 	else:
 		rw = None
-		if 'posttype' in request.form and request.form['posttype'] == 'oo':
+		if 'posttype' in request.form or "post1likes" in session:
+			time = datetime.now() - session['time']
+			print time
+			if 'compid' in request.form:
+				comp_id = request.form['compid']
+			else:
+				comp_id = session['compid']
+			if dbfunctions.is_comparison_done(session['worker_id'], session['hit_id'], comp_id):
+				return render_new_post(session['worker_id'], session['hit_id'], "back")
 			post1likes = session['post1likes']
 			post2likes = session['post2likes']
-			session['post1likes'] = ''
 			session.pop('post1likes', None)
 			session.pop('post2likes', None)
+			session.pop('compid', None)
 			if post1likes >= post2likes:
 				correct = 'post1'
 			else:
 				correct = 'post2'
 			rw = False
-			if correct in request.form or correct + ".x" in request.form:
+			if correct in request.form or correct + ".x" in request.form and time < datetime.timedelta(seconds=12):
 				rw = "correct"
 			else:
 				rw = "wrong"
-			dbfunctions.record_answer(session["worker_id"], session["hit_id"], rw, request.form['compid'], request.form['secondsused'])
-		if dbfunctions.get_num_comparisons(session["worker_id"], session['hit_id']) >= NUM_COMPARISONS:
-			assignment_id = session['assignment_id']
-			worker_id = session['worker_id']
-			hit_id = session['hit_id']
-			amazon_host = session['amazon_host']
-			finish_id = dbfunctions.log_finished_worker(worker_id, hit_id)
-			return render_template("ending.html", assignment_id=assignment_id, worker_id=worker_id, hit_id=hit_id, finish_id=finish_id, amazon_host=amazon_host)
-		return render_new_post(session['worker_id'], rw)
+			dbfunctions.record_answer(session["worker_id"], session["hit_id"], rw, comp_id, time.seconds + time.microseconds * 1.0 / 1000000)
+		session['time'] = datetime.now()
+		return render_new_post(session['worker_id'], session['hit_id'], rw)
 
-def render_new_post(worker_id, rw = None):
+def render_new_post(worker_id, hit_id, rw = None):
+	if dbfunctions.get_num_comparisons(worker_id, hit_id) >= NUM_COMPARISONS:
+		assignment_id = session['assignment_id']
+		worker_id = session['worker_id']
+		hit_id = session['hit_id']
+		amazon_host = session['amazon_host']
+		rater_percentage = dbfunctions.log_finished_worker(worker_id, hit_id)
+		session.clear()
+		return render_template("ending.html", assignment_id=assignment_id, worker_id=worker_id, hit_id=hit_id, rater_percentage=rater_percentage, amazon_host=amazon_host)
 	posts = dbfunctions.get_two(worker_id)
 	session['post1likes'] = posts[0]
 	session['post2likes'] = posts[1]
@@ -90,6 +77,7 @@ def render_new_post(worker_id, rw = None):
 	post2image = posts[3]
 	posttype = posts[4]
 	compid = posts[5]
+	session['compid'] = compid
 	return render_template("home.html", post1image = post1image, post2image = post2image, rw = rw, posttype = posttype, compid=compid)
 
 if __name__ == '__main__':

@@ -19,6 +19,9 @@
       = if rw is defined and rw == "neither"
         <div class="alert alert-info" role="alert">Thanks for taking a test post!</div>
       = endif
+      = if rw is defined and rw == "back"
+        <div class="alert alert-danger" role="alert">Don't press the back button!</div>
+      = endif
       = if rw is defined and rw == "nomore"
         <div class="alert alert-info" role="alert">No more comparisons!</div>
       = endif
@@ -31,12 +34,11 @@
       = endif
 			</div>
 		</div>
-    <form method='post'>
+    <form method='post' id="masterForm">
 		<div class="row" style="margin-bottom: 40px;">
       = if posttype is defined and compid is defined
       <input type=hidden name="posttype" value="{{posttype}}">
       <input type=hidden name="compid" value="{{compid}}">
-      <input id="secondsused" type=hidden name="secondsused" value="0">
       = endif
 			<div class="col-lg-6 col-sm-6 col-md-6">
         = if post1image is defined
@@ -68,16 +70,10 @@
     width: 40
 },
 function(){
-    console.log($('#piediv').pietimer("get_seconds"));
-    window.location.reload(true); 
+    document.getElementById("masterForm").submit();
 });
 window.onload = function(){
   $('#piediv').pietimer("start"); 
-  var counter = 0;
-  var interval = setInterval(function() {
-      counter++;
-      $('#secondsused').val(counter.toString())
-  }, 1000);
 }
 </script>
 = endif

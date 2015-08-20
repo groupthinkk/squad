@@ -21,18 +21,24 @@ def get_worker_id_past_tasks(worker_id, hit_id):
 def get_num_comparisons(worker_id, hit_id):
 	return db.useranswers.find({'worker_id': worker_id, 'hit_id': hit_id}).count()
 
+def is_comparison_done(worker_id, hit_id, comp_id):
+	return db.useranswers.find({'worker_id': worker_id, 'hit_id': hit_id, "comp_id": comp_id}).count() > 0
+
 def log_finished_worker(worker_id, hit_id):
 	q = db.finishedusersids.find_one({'worker_id': worker_id})
 	if q != None:
 		q['right'] = db.useranswers.find({"worker_id": worker_id, "correct": 1}).count() * 1.0 / db.useranswers.find({"worker_id": worker_id}).count()
-		q['hit_ids'].append(hit_id)
-		db.finishedusersids.update(q)
+		if hit_id not in q['hit_ids']:
+			q['hit_ids'].append(hit_id)
+		db.finishedusersids.update({'worker_id': worker_id}, q)
 	else:
 		d = {}
 		d['worker_id'] = worker_id
 		d['hit_ids'] = [hit_id]
 		d['right'] = db.useranswers.find({"worker_id": worker_id, "correct": 1}).count() * 1.0 / db.useranswers.find({"worker_id": worker_id}).count()
 		db.finishedusersids.insert(d)
+	rater_percentage = db.useranswers.find({"worker_id": worker_id, "hit_id": hit_id, "correct": 1}).count() * 1.0 / db.useranswers.find({"worker_id": worker_id, "hit_id": hit_id}).count()
+	return round(rater_percentage, 3)
 
 def get_oo_comparison(username):
 	past_comparisons = db.useranswers.find({'worker_id': username})
