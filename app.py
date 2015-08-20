@@ -56,7 +56,7 @@ def index():
 		print request.args
 		session["worker_id"] = request.args.get("workerId", "")
 		session["assignment_id"] =  request.args.get("assignmentId", "")
-		session["amazon_host"] = request.args.get("turkSubmitTo", "") + "mturk/externalSubmit"
+		session["amazon_host"] = request.args.get("turkSubmitTo", "") + "/mturk/externalSubmit"
 		session["hit_id"] = request.args.get("hitId", "")
 		return render_template("landing.html")
 	else:
