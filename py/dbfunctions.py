@@ -13,7 +13,7 @@ client = MongoClient("ds031903.mongolab.com", 31903)
 db = client["squadtesting"]
 db.authenticate("sweyn", "sweynsquad")
 
-API_URL = "http://54.200.77.76:8000/api/v0/instagram/"
+API_URL = "http://54.200.77.76/api/v0/instagram/"
 
 def get_worker_ids_past_tasks():
 	yield db.finishedusersids.find()
