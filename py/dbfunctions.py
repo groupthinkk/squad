@@ -32,7 +32,7 @@ def get_oo_comparison(username):
 	call_url = API_URL + "posts/random?api_key=CazMCDN5G2SuFhET3BuXdLIW01PQxisNLwKRIw" 
 	comparison_id_string = ','.join([x['comp_id'] for x in past_comparisons])
 	if comparison_id_string != "":
-		request_url = call_url + "?exclude=" + comparison_id_string
+		request_url = call_url + "&exclude=" + comparison_id_string
 	else:
 		request_url = call_url
 	print request_url
@@ -55,7 +55,7 @@ def get_two(username):
 	return get_oo_comparison(username)
 
 def get_oo_comp_by_id(id):
-	request_url = API_URL + 'posts/random?api_key=CazMCDN5G2SuFhET3BuXdLIW01PQxisNLwKRIw?id=' + id
+	request_url = API_URL + 'posts/random?api_key=CazMCDN5G2SuFhET3BuXdLIW01PQxisNLwKRIw&id=' + id
 	return requests.get(request_url).json()
 
 def record_answer(username, right, id, seconds_used):
