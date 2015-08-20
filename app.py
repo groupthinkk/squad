@@ -17,7 +17,7 @@ env.line_statement_prefix = '='
 
 basic_auth = BasicAuth(app)
 
-NUM_COMPARISONS = 3
+NUM_COMPARISONS = 100
 
 @app.route("/", methods = ["GET", "POST"])
 def index():
