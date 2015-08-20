@@ -43,6 +43,8 @@ def get_oo_comparison(username):
 		return False
 	di = []
 	print j
+	di.append(j['posts'][0][0]['likes_count'])
+	di.append(j['posts'][0][1]['likes_count'])
 	di.append(j['posts'][0][0]['image_url'])
 	di.append(j['posts'][0][1]['image_url'])
 	di.append('oo')

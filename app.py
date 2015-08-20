@@ -60,10 +60,15 @@ def index():
 	else:
 		rw = None
 		if 'posttype' in request.form and request.form['posttype'] == 'oo':
-			posts = dbfunctions.get_oo_comp_by_id(request.form['compid'])
-			post1 = posts['posts'][0][0]
-			post2 = posts['posts'][0][1]
-			if post1['likes_count'] >= post2['likes_count']:
+			#posts = dbfunctions.get_oo_comp_by_id(request.form['compid'])
+			post1likes = session['post1likes']
+			post2likes = session['post2likes']
+			session['post1likes'] = ''
+			session.pop('post1likes', None)
+			session.pop('post2likes', None)
+			#post1 = posts['posts'][0][0]
+			#post2 = posts['posts'][0][1]
+			if post1likes >= post2likes:
 				correct = 'post1'
 			else:
 				correct = 'post2'
@@ -84,10 +89,12 @@ def index():
 
 def render_new_post(worker_id, rw = None):
 	posts = dbfunctions.get_two(worker_id)
-	post1image = posts[0]
-	post2image = posts[1]
-	posttype = posts[2]
-	compid = posts[3]
+	session['post1likes'] = posts[0]
+	session['post2likes'] = posts[1]
+	post1image = posts[2]
+	post2image = posts[3]
+	posttype = posts[4]
+	compid = posts[5]
 	return render_template("home.html", post1image = post1image, post2image = post2image, rw = rw, posttype = posttype, compid=compid)
 
 if __name__ == '__main__':
