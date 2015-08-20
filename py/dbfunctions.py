@@ -38,7 +38,7 @@ def log_finished_worker(worker_id, hit_id):
 		d['right'] = db.useranswers.find({"worker_id": worker_id, "correct": 1}).count() * 1.0 / db.useranswers.find({"worker_id": worker_id}).count()
 		db.finishedusersids.insert(d)
 	rater_percentage = db.useranswers.find({"worker_id": worker_id, "hit_id": hit_id, "correct": 1}).count() * 1.0 / db.useranswers.find({"worker_id": worker_id, "hit_id": hit_id}).count()
-	return round(rater_percentage, 3)
+	return round(rater_percentage, 5) * 100
 
 def get_oo_comparison(username):
 	past_comparisons = db.useranswers.find({'worker_id': username})
