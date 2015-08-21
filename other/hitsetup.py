@@ -21,7 +21,7 @@ title = "Compare 100 sets of 2 Instagram posts to guess which performed better"
 description = "This HIT will take at most 15 minutes (usually much less)."
 keywords = ["easy", "survey", "study", "bonus", "image", "images", "compare", "comparisons", "collection", "data", "research", "listings", "simple", "photo", "answer", "opinion", "question"]
 frame_height = 800
-amount = .50
+amount = 1
 
 questionform = ExternalQuestion(url, frame_height)
 
@@ -30,7 +30,7 @@ for _ in xrange(1):
         title=title,
         description=description,
         keywords=keywords,
-        max_assignments=1,
+        max_assignments=10,
         question=questionform,
         reward=Price(amount=amount),
         response_groups=('Minimal', 'HITDetail', 'HITQuestion', 'HITAssignmentSummary')
