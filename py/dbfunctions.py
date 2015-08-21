@@ -9,7 +9,8 @@ client = MongoClient("ds037713-a0.mongolab.com", 37713)
 db = client["turksquad"]
 db.authenticate("sweyn", "sweynsquad")
 
-API_URL = "http://54.200.77.76/api/v0/instagram/"
+API_URL = "http://54.200.77.76/api/v0/instagram/posts/random"
+API_KEY = 'CazMCDN5G2SuFhET3BuXdLIW01PQxisNLwKRIw'
 
 def get_worker_id_past_tasks(worker_id, hit_id):
 	return db.finishedusersids.find({"worker_id": worker_id,"hit_ids": hit_id}).count() != 0
@@ -38,20 +39,16 @@ def log_finished_worker(worker_id, hit_id):
 
 def get_oo_comparison(username):
 	past_comparisons = db.useranswers.find({'worker_id': username})
-	call_url = API_URL + "posts/random?api_key=CazMCDN5G2SuFhET3BuXdLIW01PQxisNLwKRIw" 
+	calldata = {"api_key" : API_KEY}
 	comparison_id_string = ','.join([x['comp_id'] for x in past_comparisons])
 	if comparison_id_string != "":
-		request_url = call_url + "&exclude=" + comparison_id_string
-	else:
-		request_url = call_url
-	print request_url
-	resp = requests.get(request_url)
+		calldata['exclude'] = comparison_id_string
+	resp = requests.post(API_URL,data=calldata)
 	try:
 		j = resp.json()
 	except ValueError:
 		return False
 	di = []
-	print j
 	di.append(j['posts'][0][0]['likes_count'])
 	di.append(j['posts'][0][1]['likes_count'])
 	di.append(j['posts'][0][0]['image_url'])
@@ -64,8 +61,11 @@ def get_two(username):
 	return get_oo_comparison(username)
 
 def get_oo_comp_by_id(id):
-	request_url = API_URL + 'posts/random?api_key=CazMCDN5G2SuFhET3BuXdLIW01PQxisNLwKRIw&id=' + id
-	return requests.get(request_url).json()
+	calldata = {
+		"api_key" : API_KEY,
+		"id" : id
+	}
+	return requests.get(API_URL, data=calldata).json()
 
 def record_answer(worker_id, hit_id, right, id, seconds_used):
 	d = {}
