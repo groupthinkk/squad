@@ -19,7 +19,7 @@ def get_num_comparisons(worker_id, hit_id):
 	return db.useranswers.find({'worker_id': worker_id, 'hit_id': hit_id}).count()
 
 def is_comparison_done(worker_id, hit_id, comp_id):
-	return db.useranswers.find({'worker_id': worker_id, 'hit_id': hit_id, "comp_id": comp_id}).count() > 0
+	return db.useranswers.find({'worker_id': worker_id, "comp_id": comp_id}).count() > 0
 
 def log_finished_worker(worker_id, hit_id):
 	q = db.finishedusersids.find_one({'worker_id': worker_id})
