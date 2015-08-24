@@ -53,7 +53,7 @@ def index():
 			else:
 				correct = 'post2'
 			rw = False
-			if correct in request.form or correct + ".x" in request.form and time < datetime.timedelta(seconds=12):
+			if correct in request.form or correct + ".x" in request.form and time < datetime.timedelta(seconds=20):
 				rw = "correct"
 			else:
 				rw = "wrong"
