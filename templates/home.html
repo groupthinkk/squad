@@ -1,80 +1,44 @@
-= extends "layout.html"
-= set active_page = "home"
-= set title = "Home"
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<title>Groupthink</title>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+	<link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="static/css/style.css" type="text/css" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<body>
+	<div class="badger correct">Correct!</div>
+	<div class="badger wrong">Nope</div>
+	<div class="container">
 
-= block head
-= endblock
-
-
-= block body
-<div class="container">
 		<div class="row">
-			<div class="col-lg-12 col-sm-12 col-md-12 titlebox">
-      = if rw is defined and rw == "correct"
-        <div class="alert alert-success" role="alert">Congratulations! That was correct!</div>
-      = endif
-      = if rw is defined and rw == "wrong"
-        <div class="alert alert-danger" role="alert">Oh no! That was wrong!</div>
-      = endif
-      = if rw is defined and rw == "neither"
-        <div class="alert alert-info" role="alert">Thanks for taking a test post!</div>
-      = endif
-      = if rw is defined and rw == "back"
-        <div class="alert alert-danger" role="alert">Don't press the back button!</div>
-      = endif
-      = if rw is defined and rw == "nomore"
-        <div class="alert alert-info" role="alert">No more comparisons!</div>
-      = endif
-      = if rw != "nomore"
-        <div>
-				<h3>Which post do you think got more likes?</h3>
-        <div id="piediv">
-        </div>
-        </div>
-      = endif
+			<div class="col-xs-12">
+				<h2>Which post do you think got most likes?</h2>
 			</div>
 		</div>
-    <form method='post' id="masterForm">
-		<div class="row" style="margin-bottom: 40px;">
-      = if posttype is defined and compid is defined
-      <input type=hidden name="posttype" value="{{posttype}}">
-      <input type=hidden name="compid" value="{{compid}}">
-      = endif
-			<div class="col-lg-6 col-sm-6 col-md-6">
-        = if post1image is defined
-				<div class="pic">
-          <input class="img-responsive" name='post1' type="image" value="1" src="{{post1image}}" alt="First Image">
+		<div class="row images">
+			<div class="col-xs-5">
+				<div class="image" id="left">
+					<div class="overlay"></div>
+					<img src="">
 				</div>
-        = endif
 			</div>
-			<div class="col-lg-6 col-sm-6 col-md-6">
-        = if post2image is defined
-				<div class="pic">    
-          <input class="img-responsive" name='post2' type="image" value="1" src="{{post2image}}" alt="Second Image">
-				</div>
-        = endif
-			</div>
-		</div>
-    </form>
-</div>
-= endblock
 
-= block footer
-= if rw != "nomore"
-<script src="static/js/jquery.pietimer.js"></script>
-<script type="text/javascript">
-  $('#piediv').pietimer({
-    seconds: 10,
-    color: 'rgba(0, 0, 0, 0.8)',
-    height: 40,
-    width: 40
-},
-function(){
-    document.getElementById("masterForm").submit();
-});
-window.onload = function(){
-  $('#piediv').pietimer("start"); 
-}
-</script>
-= endif
-= endblock
+			<div class="col-xs-2 versus">
+				<span class="text">vs.</span>
+				<div id="timer"></div>
+			</div>
+
+			<div class="col-xs-5">
+				<div class="image" id="right">
+					<div class="overlay"></div>
+					<img src="">
+				</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript" src="static/js/main.js"></script>
+</body>
+</html>

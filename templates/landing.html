@@ -1,29 +1,40 @@
-= extends "layout.html"
+<!DOCTYPE html>
 
-= block body
-<div class="container">
-    <form method='post'>
-		<div class="row" style="margin-bottom: 40px;">
-			<div class="col-lg-6 col-sm-6 col-md-6">
-			<p>You will be comparing sets of two posts from Instagram and anwering which received more likes. 
+<html>
+<head>
+	<title>Groupthink</title>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+	<link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="static/css/style.css" type="text/css" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>  
 
-				There are 100 sets of comparisons in this HIT. You will have at most 10 seconds to complete each comparison. The whole HIT will take at most 15 minutes.
+<body>
 
-				If you have the highest score from all those that answer this hit, you'll receive a bonus of $2. 
-
-				COMPLETE THIS TASK ONLY ONCE! All submissions after the first will be rejected.</p>
- 
-			<h3>DO NOT</h3>
-			<ul>
-				<li>Do outside research</li>
-				<li>Use your browser's back button</li>
-				<li>Attempt to cheat in any way</li>
-			</ul>
-
-			<p>If you break any of the rules above, your HIT will not be accepted.</p>
-        	<button class="btn btn-lg btn-primary btn-block" value="start" type="submit">Get Started</button>
-        	</div>
-		</div>
-    </form>
+<div class="homepage">
+	<form method="POST">
+	<h1>Groupthink Header</h1>
+	<p>
+		<b>You will be comparing sets of two posts from Instagram and answering which recieved more likes.</b> There are 100 sets of comparisons in this HIT. You will have most 10 seconds to complete each comparison. The whole HIT will take at most 15 minutes.
+		<br><br>
+		If you have the highest score from all those that answer this hit, you'll receive a bonus of $2. <b>Complete this task only once!</b> All subsmissions after the first will be rejected.	</p>
+	
+	<ul>
+		<li><b>Please do not:</b></li>
+		<li>Do outside research</li>
+		<li>Use your browsers back button</li>
+		<li>Attempt to cheat in any way</li>
+	</ul>
+	<p>
+		If you break any of the rules above, your HIT will not be accepted.
+	</p>
+	<button value="start" type="submit" class="btn-big">Let's get started</a>
+	</form>
 </div>
-= endblock
+
+<script type="text/javascript" src="static/js/main.js"></script>
+
+</body>
+</html>
+
