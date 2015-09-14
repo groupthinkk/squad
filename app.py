@@ -3,7 +3,7 @@ from flask import render_template, url_for, redirect
 from flask import request, session
 from py import *
 from flask.ext.basicauth import BasicAuth
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from hashlib import sha512
 
@@ -36,7 +36,6 @@ def index():
 		rw = None
 		if 'posttype' in request.form or "post1likes" in session:
 			time = datetime.now() - session['time']
-			print time
 			if 'compid' in request.form:
 				comp_id = request.form['compid']
 			else:
@@ -53,7 +52,7 @@ def index():
 			else:
 				correct = 'post2'
 			rw = False
-			if correct in request.form or correct + ".x" in request.form and time < datetime.timedelta(seconds=12):
+			if "postnum" in request.form and correct == request.form["postnum"] and time < timedelta(seconds=20):
 				rw = "correct"
 			else:
 				rw = "wrong"
