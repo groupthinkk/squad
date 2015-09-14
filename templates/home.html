@@ -9,21 +9,30 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 </head>
 <body>
+	= if rw is defined and rw == "correct"
 	<div class="badger correct">Correct!</div>
+	= endif
+	= if rw is defined and rw == "wrong"
 	<div class="badger wrong">Nope</div>
-
+	= endif
+	= if rw is defined and rw == "back"
+	<div class="badger wrong">Don't press back!</div>
+	= endif
 	<div class="container">
-
+		<form method='post' id="masterForm">
 		<div class="row">
 			<div class="col-xs-12">
 				<h2>Which post do you think got most likes?</h2>
 			</div>
 		</div>
+		<input type=hidden name="posttype" value="{{posttype}}">
+		<input type=hidden name="compid" value="{{compid}}">
+		<input type=hidden name="postnum" id="postnum" value="">
 		<div class="row images">
 			<div class="col-xs-5">
 				<div class="image" id="left">
 					<div class="overlay"></div>
-					<img src="">
+					<img src="{{post1image}}">
 				</div>
 			</div>
 
@@ -35,10 +44,11 @@
 			<div class="col-xs-5">
 				<div class="image" id="right">
 					<div class="overlay"></div>
-					<img src="">
+					<img src="{{post2image}}">
 				</div>
 			</div>
 		</div>
+		</form>
 	</div>
 	<script type="text/javascript" src="static/js/main.js"></script>
 </body>
