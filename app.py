@@ -4,6 +4,7 @@ from flask import request, session
 from py import *
 from flask.ext.basicauth import BasicAuth
 from datetime import datetime
+import logging
 
 from hashlib import sha512
 
