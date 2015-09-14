@@ -1,1 +1,1 @@
-web: newrelic-admin run-program gunicorn app:app --log-file=-
+web: newrelic-admin run-program gunicorn --workers=4 app:app --log-file=-
