@@ -1,115 +1,78 @@
-import grequests
 import requests
 from pymongo import MongoClient
+from bson import objectid
 from random import random
 from math import ceil, factorial, pow
 from operator import itemgetter
 
-client = MongoClient("ds041841.mongolab.com", 41841)
-db = client["heroku_7jhh76p4"]
-db.authenticate("squad", "squadpass")
+client = MongoClient("ds037713-a0.mongolab.com", 37713)
+db = client["turksquad"]
+db.authenticate("sweyn", "sweynsquad")
 
-#client = MongoClient()
-#db = client["SQUAD"]
+API_URL = "http://54.200.77.76/api/v0/instagram/posts/random"
+API_KEY = 'CazMCDN5G2SuFhET3BuXdLIW01PQxisNLwKRIw'
+
+def get_worker_id_past_tasks(worker_id, hit_id):
+	return db.finishedusersids.find({"worker_id": worker_id,"hit_ids": hit_id}).count() != 0
+
+def get_num_comparisons(worker_id, hit_id):
+	return db.useranswers.find({'worker_id': worker_id, 'hit_id': hit_id}).count()
+
+def is_comparison_done(worker_id, hit_id, comp_id):
+	return db.useranswers.find({'worker_id': worker_id, 'hit_id': hit_id, "comp_id": comp_id}).count() > 0
+
+def log_finished_worker(worker_id, hit_id):
+	q = db.finishedusersids.find_one({'worker_id': worker_id})
+	if q != None:
+		q['right'] = db.useranswers.find({"worker_id": worker_id, "correct": 1}).count() * 1.0 / db.useranswers.find({"worker_id": worker_id}).count()
+		if hit_id not in q['hit_ids']:
+			q['hit_ids'].append(hit_id)
+		db.finishedusersids.update({'worker_id': worker_id}, q)
+	else:
+		d = {}
+		d['worker_id'] = worker_id
+		d['hit_ids'] = [hit_id]
+		d['right'] = db.useranswers.find({"worker_id": worker_id, "correct": 1}).count() * 1.0 / db.useranswers.find({"worker_id": worker_id}).count()
+		db.finishedusersids.insert(d)
+	rater_percentage = db.useranswers.find({"worker_id": worker_id, "hit_id": hit_id, "correct": 1}).count() * 1.0 / db.useranswers.find({"worker_id": worker_id, "hit_id": hit_id}).count()
+	return round(rater_percentage, 5) * 100
+
+def get_oo_comparison(username):
+	past_comparisons = db.useranswers.find({'worker_id': username})
+	calldata = {"api_key" : API_KEY}
+	comparison_id_string = ','.join([x['comp_id'] for x in past_comparisons])
+	if comparison_id_string != "":
+		calldata['exclude'] = comparison_id_string
+	resp = requests.post(API_URL,data=calldata)
+	try:
+		j = resp.json()
+	except ValueError:
+		return False
+	di = []
+	di.append(j['posts'][0][0]['likes_count'])
+	di.append(j['posts'][0][1]['likes_count'])
+	di.append(j['posts'][0][0]['image_url'])
+	di.append(j['posts'][0][1]['image_url'])
+	di.append('oo')
+	di.append(j['id'])
+	return di
 
 def get_two(username):
-	rand  = random()
-	user = db.userdata.find_one({'email': username})
-	right = user['right']
-	wrong = user['wrong']
-	percentage = round(float(right)/(wrong+right) * 100) if right+wrong != 0 else 0
-	if rand > .9 and percentage > 50:
-		d = db.comparisonsdata.find_one({'userlist': {'$ne': username}})
-		if d is not None:
-			di = [{}, {}]
-			di[0]['image'] = d['pic1']
-			di[0]['id'] = d['id1']
-			di[1]['image'] = d['pic2']
-			di[1]['id'] = d['id2']
-			return [di, "nn"]
-	rand = random()
-	d = db.accountdata.find_one({'userlist': {'$ne': username}, 'rnd': {'$gte': rand}})
-	if d is None:
-		d = db.accountdata.find_one({'userlist': {'$ne': username}, 'rnd': {'$lte': rand}})
-	if d is None:
-		return False
-	return [d['postdata'], "oo"]
+	return get_oo_comparison(username)
 
-def record_answer(username, id1, id2, right):
+def get_oo_comp_by_id(id):
+	calldata = {
+		"api_key" : API_KEY,
+		"id" : id
+	}
+	return requests.get(API_URL, data=calldata).json()
+
+def record_answer(worker_id, hit_id, right, id, seconds_used):
 	d = {}
-	d['username'] = username
-	d['posts'] = [id1, id2]
+	d['worker_id'] = worker_id
+	d['hit_id'] = hit_id
+	d['comp_id'] = id
 	d['correct'] = 1 if right == "correct" else 0
+	d['seconds_used'] = seconds_used
 	db.useranswers.insert(d)
-
-def record_comparison(username, id1, id2, answer):
-	i = db.userdata.find_one({'email': username})
-	right = i['right']
-	wrong = i['wrong']
-	d = {}
-	d['username'] = username
-	d['choice'] = answer
-	d['percentage'] = round(float(right)/(wrong+right) * 100)
-	if answer == 'post1':
-		vote = 'vote1'
-	else:
-		vote = 'vote2'
-	db.comparisonsdata.update({'posts': [id1, id2]}, {'$push': {'responses': d, 'userlist': username}, '$inc': {vote: 1}})
-
-def get_leaders():
-	rtn = []
-	results = db.userdata.find()
-	for user in results:
-		right = user['right']
-		wrong = user['wrong']
-		percentage = round(float(right)/(wrong+right) * 100) if right+wrong != 0 else 0
-		rtn.append([user['email'], percentage])
-	return sorted(rtn, key=itemgetter(1), reverse=True)
-
-def insert_test_posts(pic1, pic2, id1, id2, user):
-	test = {}
-	test['pic1'] = pic1
-	test['pic2'] = pic2
-	test['id1'] = id1
-	test['id2'] = id2
-	test['user'] = user
-	test['posts'] = [id1, id2]
-	test['vote1'] = 0
-	test['vote2'] = 0
-	test['userlist'] = []
-	test['responses'] = []
-	db.comparisonsdata.insert(test)
-
-def get_nn_comparisons(user):
-	l = []
-	r = db.comparisonsdata.find({'user': user})
-	for i in r:
-		winningimage = "Image 1" if i['vote1'] > i['vote2'] else "Image 2" if i['vote1'] < i['vote2'] else "Tie"
-		if i['vote1'] + i['vote2'] != 0:
-			votingpercentage = float(i['vote1'])/(i['vote1']+i['vote2'])*100 if i['vote1'] > i['vote2'] else float(i['vote2'])/(i['vote1']+i['vote2'])*100
-		else:
-			votingpercentage = 0
-		juror_percentage = get_jurors_theorem(len(i['responses']), sum([element['percentage'] for element in i['responses']])/len(i['responses'])) if len(i['responses']) != 0 else 0
-		l.append({
-			"pic1": i['pic1'], 
-			"pic2": i['pic2'], 
-			"winningimage": winningimage,
-			"votingpercentage": votingpercentage,
-			"theorempercent": juror_percentage
-			})
-	return l
-
-def get_jurors_theorem(N, p):
-	m = int(ceil(N/2.0-1))+1 if N != 2 else 2
-	ans = 0
-	for i in range(m, N+1):
-		ans = factorial(N)/(factorial(N-i)*factorial(i))*pow(p, i)*pow(1-p, N-i)
-	return ans
-
-def get_instagram_accounts():
-	r = []
-	q = db.accountlist.find()
-	for entry in q:
-		r.append(entry['name'])
-	return r
 
