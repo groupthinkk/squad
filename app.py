@@ -12,6 +12,10 @@ app.secret_key = sha512("cybersec").hexdigest()
 app.config['BASIC_AUTH_USERNAME'] = 'overlord'
 app.config['BASIC_AUTH_PASSWORD'] = 'squad'
 
+stream_handler = logging.StreamHandler()
+stream_handler.setLevel(logging.INFO)
+app.logger.addHandler(stream_handler)
+
 env = app.jinja_env
 env.line_statement_prefix = '='
 
