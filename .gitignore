@@ -99,3 +99,4 @@ docs/_build/
 target/
 
 .DS_Store
+static/.DS_Store
