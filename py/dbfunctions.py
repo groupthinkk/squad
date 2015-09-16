@@ -5,8 +5,8 @@ from random import random
 from math import ceil, factorial, pow
 from operator import itemgetter
 
-client = MongoClient("ds037713-a0.mongolab.com", 37713)
-db = client["turksquad"]
+client = MongoClient("ds031903.mongolab.com", 31903)
+db = client["squadtesting"]
 db.authenticate("sweyn", "sweynsquad")
 
 API_URL = "http://54.200.77.76/api/v0/instagram/posts/random"
