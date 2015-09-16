@@ -19,12 +19,12 @@ connection = MTurkConnection(aws_access_key_id=AWS_ACCESS_KEY_ID,
                              host=HOST,
                              debug=1)
 
-url = "https://squadtest.herokuapp.com/"
-title = "Compare 100 sets of 2 Instagram posts to guess which performed better (<10 minutes)"
+url = "https://csquad.herokuapp.com/"
+title = "Compare 10 sets of 2 Instagram posts to guess which performed better (<10 minutes)"
 description = "This HIT will take at most 15 minutes (usually much less)."
 keywords = ["easy", "survey", "study", "bonus", "image", "images", "compare", "comparisons", "collection", "data", "research", "listings", "simple", "photo", "answer", "opinion", "question"]
 frame_height = 800
-amount = .75
+amount = .01
 
 duration = datetime.timedelta(minutes=30)
 lifetime = datetime.timedelta(days=7)
@@ -32,7 +32,8 @@ approval_delay = datetime.timedelta(days=5)
 
 q1 = PercentAssignmentsApprovedRequirement('GreaterThan', 95)
 q2 = NumberHitsApprovedRequirement('GreaterThan', 500)
-qualifications = Qualifications([q1, q2])
+#qualifications = Qualifications([q1, q2])
+qualifications = Qualifications()
 
 questionform = ExternalQuestion(url, frame_height)
 
