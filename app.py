@@ -104,6 +104,7 @@ def render_new_post(rw = None):
             session['time'] = datetime.now()
             return render_template("home.html", post1image = post1image, post1id=post1id, post2image = post2image, post2id=post2id, rw = rw, posttype = posttype, compid=compid)
     except Exception, e:
+        traceback.print_exc()
         print str(e)
         return "There was an error"
 
