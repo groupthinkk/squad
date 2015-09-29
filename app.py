@@ -52,6 +52,7 @@ def index():
                     session['current_comparison'] = 0
                     session['correct'] = 0
             except Exception, e:
+                traceback.print_exc()
                 print str(e)
                 pass
         elif 'posttype' in request.form:
@@ -71,6 +72,7 @@ def index():
                     else:
                         rw = "wrong"
             except Exception, e:
+                traceback.print_exc()
                 print str(e)
                 pass
             session['current_comparison'] += 1
