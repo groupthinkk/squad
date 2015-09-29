@@ -33,21 +33,26 @@ def index():
     else:
         rw = None
         if "start" in request.form:
-            req = dbfunctions.submit_new_turk(session['worker_id'], session['hit_id'])
-            if 'messages' in req and 'Hit with this Hit id and Turker already exists.' in req['messages']:
-                if 'db_hit_id' not in session \
-                    or 'comparison_queue' not in session \
-                    or 'current_comparison' not in session \
-                    or 'correct' not in session:
-                    return """You already started this HIT and then tried to restart with an expired session. Please return this HIT.
-                            Contact the administrator if you think there has been a mistake."""
-            else:
-                session.clear()
-                session['db_hit_id'] = req['id']
-                session['comparison_queue'] = req['instagram_queue']['comparisons']
-                random.shuffle(session['comparison_queue'])
-                session['current_comparison'] = 0
-                session['correct'] = 0
+            try:
+                req = dbfunctions.submit_new_turk(session['worker_id'], session['hit_id'])
+                if 'messages' in req and 'Hit with this Hit id and Turker already exists.' in req['messages']:
+                    if 'db_hit_id' not in session \
+                        or 'comparison_queue' not in session \
+                        or 'current_comparison' not in session \
+                        or 'correct' not in session:
+                        return """You already started this HIT and then tried to restart with an expired session. Please return this HIT.
+                                Contact the administrator if you think there has been a mistake."""
+                else:
+                    print 
+                    session.clear()
+                    session['db_hit_id'] = req['id']
+                    session['comparison_queue'] = req['instagram_queue']['comparisons']
+                    random.shuffle(session['comparison_queue'])
+                    session['current_comparison'] = 0
+                    session['correct'] = 0
+            except Exception, e:
+                print str(e)
+                pass
         elif 'posttype' in request.form:
             try:
                 time = datetime.now() - session['time']
@@ -64,7 +69,8 @@ def index():
                         session['correct'] += 1
                     else:
                         rw = "wrong"
-            except:
+            except Exception, e:
+                print str(e)
                 pass
             session['current_comparison'] += 1
         return render_new_post(rw)
