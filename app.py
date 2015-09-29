@@ -49,20 +49,23 @@ def index():
                 session['current_comparison'] = 0
                 session['correct'] = 0
         elif 'posttype' in request.form:
-            time = datetime.now() - session['time']
-            comp_id = request.form['compid']
-            chosen_post_id = request.form['postid']
-            miliseconds = time.seconds * 1000000 + time.microseconds
-            worker_id = session['worker_id']
-            db_hit_id = session['db_hit_id']
-            ret = dbfunctions.record_comparison(db_hit_id, comp_id, chosen_post_id, miliseconds, "v0")
-            print ret
-            if 'messages' not in ret or 'Instagram prediction with this Hit and Comparison already exists.' not in ret['messages']:
-                if ret["correct"]:
-                    rw = "correct"
-                    session['correct'] += 1
-                else:
-                    rw = "wrong"
+            try:
+                time = datetime.now() - session['time']
+                comp_id = request.form['compid']
+                chosen_post_id = request.form['postid']
+                miliseconds = time.seconds * 1000000 + time.microseconds
+                worker_id = session['worker_id']
+                db_hit_id = session['db_hit_id']
+                ret = dbfunctions.record_comparison(db_hit_id, comp_id, chosen_post_id, miliseconds, "v0")
+                print ret
+                if 'messages' not in ret or 'Instagram prediction with this Hit and Comparison already exists.' not in ret['messages']:
+                    if ret["correct"]:
+                        rw = "correct"
+                        session['correct'] += 1
+                    else:
+                        rw = "wrong"
+            except:
+                pass
             session['current_comparison'] += 1
         return render_new_post(rw)
 
