@@ -18,8 +18,6 @@ env.line_statement_prefix = '='
 
 basic_auth = BasicAuth(app)
 
-NUM_COMPARISONS = 10
-
 @app.route("/", methods = ["GET", "POST"])
 def index():
     if request.method == "GET":
