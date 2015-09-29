@@ -5,6 +5,7 @@ from py import *
 from flask.ext.basicauth import BasicAuth
 from datetime import datetime, timedelta
 import random
+import logging
 
 from hashlib import sha512
 
@@ -33,11 +34,19 @@ def index():
         rw = None
         if "start" in request.form:
             req = dbfunctions.submit_new_turk(session['worker_id'], session['hit_id'])
-            session['db_hit_id'] = req['id']
-            session['comparison_queue'] = req['instagram_queue']['comparisons']
-            random.shuffle(session['comparison_queue'])
-            session['current_comparison'] = 0
-            session['correct'] = 0
+            if 'messages' in req and 'Hit with this Hit id and Turker already exists.' in req['messages']:
+                if 'db_hit_id' not in session \
+                    or 'comparison_queue' not in session \
+                    or 'current_comparison' not in session \
+                    or 'correct' not in session:
+                    return """You already started this HIT and then tried to restart with an expired session. Please return this HIT.
+                            Contact the administrator if you think there has been a mistake."""
+            else:
+                session['db_hit_id'] = req['id']
+                session['comparison_queue'] = req['instagram_queue']['comparisons']
+                random.shuffle(session['comparison_queue'])
+                session['current_comparison'] = 0
+                session['correct'] = 0
         elif 'posttype' in request.form:
             time = datetime.now() - session['time']
             comp_id = request.form['compid']
@@ -47,11 +56,14 @@ def index():
             db_hit_id = session['db_hit_id']
             ret = dbfunctions.record_comparison(db_hit_id, comp_id, chosen_post_id, miliseconds, "v0")
             print ret
-            if ret["correct"]:
-                rw = "correct"
-                session['correct'] += 1
-            else:
+            if 'messages' in ret and 'Instagram prediction with this Hit and Comparison already exists.' in req['messages']:
                 rw = "wrong"
+            else:
+                if ret["correct"]:
+                    rw = "correct"
+                    session['correct'] += 1
+                else:
+                    rw = "wrong"
             session['current_comparison'] += 1
         return render_new_post(rw)
 
@@ -70,7 +82,6 @@ def render_new_post(rw = None):
         return render_template("ending.html", assignment_id=assignment_id, worker_id=worker_id, hit_id=hit_id, rater_percentage=rater_percentage, amazon_host=amazon_host)
     else: 
         res = dbfunctions.get_comparison(comparison_queue[current_comparison])
-        print comparison_queue[current_comparison]
         print res
         post1image = res["post_a"]["image_url"]
         post1id = res['post_a']['id']
@@ -82,4 +93,7 @@ def render_new_post(rw = None):
         return render_template("home.html", post1image = post1image, post1id=post1id, post2image = post2image, post2id=post2id, rw = rw, posttype = posttype, compid=compid)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    stream_handler = logging.StreamHandler()
+    stream_handler.setLevel(logging.INFO)
+    app.logger.addHandler(stream_handler)
+    app.run()

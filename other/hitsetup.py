@@ -20,14 +20,14 @@ connection = MTurkConnection(aws_access_key_id=AWS_ACCESS_KEY_ID,
                              debug=1)
 
 url = "https://squadtest.herokuapp.com/"
-title = "Compare 10 sets of 2 Instagram posts to guess which performed better (<10 minutes)"
+title = "Compare sets of 2 Instagram posts to guess which performed better (<15 minutes)"
 description = "This HIT will take at most 15 minutes (usually much less). If you encounter an issue, send us a message so we can correct it."
 keywords = ["easy", "survey", "study", "bonus", "image", "images", "compare", "comparisons", "collection", "data", "research", "listings", "simple", "photo", "answer", "opinion", "question"]
 frame_height = 800
 amount = 1.30
 
-duration = datetime.timedelta(minutes=30)
-lifetime = datetime.timedelta(days=7)
+duration = datetime.timedelta(minutes=60)
+lifetime = datetime.timedelta(days=1)
 approval_delay = datetime.timedelta(days=5)
 
 q1 = PercentAssignmentsApprovedRequirement('GreaterThan', 95)
@@ -42,7 +42,7 @@ for _ in xrange(1):
         title=title,
         description=description,
         keywords=keywords,
-        max_assignments=20,
+        max_assignments=10,
         question=questionform,
         reward=Price(amount=amount),
         response_groups=('Minimal', 'HITDetail', 'HITQuestion', 'HITAssignmentSummary'),

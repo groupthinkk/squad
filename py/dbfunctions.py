@@ -21,7 +21,7 @@ def submit_new_turk(turk_id, hit_id):
 	    'hit_id': hit_id
 	}
 	req = requests.post(API_URL, data=data)
-	print req.text
+	print req.json()
 	return req.json()
 
 def get_comparison(comparison_id):
@@ -31,7 +31,6 @@ def get_comparison(comparison_id):
 		'id': comparison_id
 	}
 	req = requests.get(API_URL, params=data)
-	print req
 	return req.json()['results'][0]
 
 def record_comparison(turk_id, comparison_id, choice_id, dec_miliseconds, ux_id):
@@ -48,4 +47,4 @@ def record_comparison(turk_id, comparison_id, choice_id, dec_miliseconds, ux_id)
     return req.json()
 
 if __name__ == '__main__':
-	record_comparison("turker_0003", 1, 2605, 11, "1")
+	submit_new_turk(1, 1)
