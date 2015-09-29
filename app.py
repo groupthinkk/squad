@@ -76,29 +76,32 @@ def index():
         return render_new_post(rw)
 
 def render_new_post(rw = None):
-    worker_id = session['worker_id']
-    hit_id = session['hit_id']
-    current_comparison = session['current_comparison']
-    comparison_queue = session['comparison_queue']
-    if current_comparison >= len(comparison_queue):
-        assignment_id = session['assignment_id']
+    try:
         worker_id = session['worker_id']
         hit_id = session['hit_id']
-        amazon_host = session['amazon_host']
-        rater_percentage = round(session['correct'] * 100.0 / len(comparison_queue), 1)
-        session.clear()
-        return render_template("ending.html", assignment_id=assignment_id, worker_id=worker_id, hit_id=hit_id, rater_percentage=rater_percentage, amazon_host=amazon_host)
-    else: 
-        res = dbfunctions.get_comparison(comparison_queue[current_comparison])
-        print res
-        post1image = res["post_a"]["image_url"]
-        post1id = res['post_a']['id']
-        post2image = res["post_b"]["image_url"]
-        post2id = res['post_b']['id']
-        compid = comparison_queue[current_comparison]
-        posttype = 'oo'
-        session['time'] = datetime.now()
-        return render_template("home.html", post1image = post1image, post1id=post1id, post2image = post2image, post2id=post2id, rw = rw, posttype = posttype, compid=compid)
+        current_comparison = session['current_comparison']
+        comparison_queue = session['comparison_queue']
+        if current_comparison >= len(comparison_queue):
+            assignment_id = session['assignment_id']
+            worker_id = session['worker_id']
+            hit_id = session['hit_id']
+            amazon_host = session['amazon_host']
+            rater_percentage = round(session['correct'] * 100.0 / len(comparison_queue), 1)
+            session.clear()
+            return render_template("ending.html", assignment_id=assignment_id, worker_id=worker_id, hit_id=hit_id, rater_percentage=rater_percentage, amazon_host=amazon_host)
+        else: 
+            res = dbfunctions.get_comparison(comparison_queue[current_comparison])
+            print res
+            post1image = res["post_a"]["image_url"]
+            post1id = res['post_a']['id']
+            post2image = res["post_b"]["image_url"]
+            post2id = res['post_b']['id']
+            compid = comparison_queue[current_comparison]
+            posttype = 'oo'
+            session['time'] = datetime.now()
+            return render_template("home.html", post1image = post1image, post1id=post1id, post2image = post2image, post2id=post2id, rw = rw, posttype = posttype, compid=compid)
+    except Exception, e:
+        return str(e)
 
 if __name__ == '__main__':
     stream_handler = logging.StreamHandler()
