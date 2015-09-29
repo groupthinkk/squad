@@ -25,7 +25,7 @@ def index():
 
         if request.args.get("assignmentId") == "ASSIGNMENT_ID_NOT_AVAILABLE":
             return "You haven't accepted the HIT yet"
-            
+
         session["worker_id"] = request.args.get("workerId", "")
         session["assignment_id"] =  request.args.get("assignmentId", "")
         session["amazon_host"] = request.args.get("turkSubmitTo", "") + "/mturk/externalSubmit"
@@ -102,7 +102,8 @@ def render_new_post(rw = None):
             session['time'] = datetime.now()
             return render_template("home.html", post1image = post1image, post1id=post1id, post2image = post2image, post2id=post2id, rw = rw, posttype = posttype, compid=compid)
     except Exception, e:
-        return str(e)
+        print str(e)
+        return "There was an error"
 
 if __name__ == '__main__':
     stream_handler = logging.StreamHandler()
