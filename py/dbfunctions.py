@@ -33,11 +33,11 @@ def get_comparison(comparison_id):
 	req = requests.get(API_URL, params=data)
 	return req.json()['results'][0]
 
-def record_comparison(turk_id, comparison_id, choice_id, dec_miliseconds, ux_id):
+def record_comparison(hit_id, comparison_id, choice_id, dec_miliseconds, ux_id):
     API_URL = "http://54.200.77.76/api/v0/predictions/instagram/"
     data = {
         'api_key': API_KEY,
-        'hit_id': turk_id,
+        'hit_id': hit_id,
         'comparison_id': comparison_id,
         'choice_id': choice_id,
         'decision_milliseconds': dec_miliseconds,
@@ -47,4 +47,7 @@ def record_comparison(turk_id, comparison_id, choice_id, dec_miliseconds, ux_id)
     return req.json()
 
 if __name__ == '__main__':
-	submit_new_turk(1, 1)
+	ret = record_comparison(9, 15, 33067, 11, "1")
+	print ret
+	if 'messages' not in ret or 'Instagram prediction with this Hit and Comparison already exists.' not in ret['messages']:
+		print "We already did that"

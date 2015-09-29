@@ -42,6 +42,7 @@ def index():
                     return """You already started this HIT and then tried to restart with an expired session. Please return this HIT.
                             Contact the administrator if you think there has been a mistake."""
             else:
+                session.clear()
                 session['db_hit_id'] = req['id']
                 session['comparison_queue'] = req['instagram_queue']['comparisons']
                 random.shuffle(session['comparison_queue'])
@@ -56,9 +57,7 @@ def index():
             db_hit_id = session['db_hit_id']
             ret = dbfunctions.record_comparison(db_hit_id, comp_id, chosen_post_id, miliseconds, "v0")
             print ret
-            if 'messages' in ret and 'Instagram prediction with this Hit and Comparison already exists.' in req['messages']:
-                rw = "wrong"
-            else:
+            if 'messages' not in ret or 'Instagram prediction with this Hit and Comparison already exists.' not in ret['messages']:
                 if ret["correct"]:
                     rw = "correct"
                     session['correct'] += 1
