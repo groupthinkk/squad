@@ -80,7 +80,7 @@
         stopTimer();
         $('.image').fadeOut('fast');
         var choice = $(this).attr("id")==='right' ? 'post2' : 'post1';
-        document.getElementById("postnum").setAttribute("value", choice);
+        document.getElementById("postid").setAttribute("value", $(this).attr("value"));
         document.getElementById("masterForm").submit();
     })
 

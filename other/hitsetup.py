@@ -42,7 +42,7 @@ for _ in xrange(1):
         title=title,
         description=description,
         keywords=keywords,
-        max_assignments=100,
+        max_assignments=10,
         question=questionform,
         reward=Price(amount=amount),
         response_groups=('Minimal', 'HITDetail', 'HITQuestion', 'HITAssignmentSummary'),
