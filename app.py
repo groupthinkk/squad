@@ -22,13 +22,14 @@ basic_auth = BasicAuth(app)
 @app.route("/", methods = ["GET", "POST"])
 def index():
     if request.method == "GET":
+
+        if request.args.get("assignmentId") == "ASSIGNMENT_ID_NOT_AVAILABLE":
+            return "You haven't accepted the HIT yet"
+            
         session["worker_id"] = request.args.get("workerId", "")
         session["assignment_id"] =  request.args.get("assignmentId", "")
         session["amazon_host"] = request.args.get("turkSubmitTo", "") + "/mturk/externalSubmit"
         session["hit_id"] = request.args.get("hitId", "")
-
-        if request.args.get("assignmentId") == "ASSIGNMENT_ID_NOT_AVAILABLE":
-            return "You haven't accepted the HIT yet"
         return render_template("landing.html")
     else:
         rw = None
