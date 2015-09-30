@@ -78,7 +78,7 @@ def index():
             session['current_comparison'] += 1
         return render_new_post(rw, session)
 
-def render_new_post(rw, session):
+def render_new_post(rw):
     try:
         worker_id = session['worker_id']
         hit_id = session['hit_id']
