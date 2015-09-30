@@ -26,7 +26,7 @@ def index():
 
         if request.args.get("assignmentId") == "ASSIGNMENT_ID_NOT_AVAILABLE":
             return "You haven't accepted the HIT yet"
-
+        session.clear()
         session["worker_id"] = request.args.get("workerId", "")
         session["assignment_id"] =  request.args.get("assignmentId", "")
         session["amazon_host"] = request.args.get("turkSubmitTo", "") + "/mturk/externalSubmit"
@@ -46,8 +46,6 @@ def index():
                         return """You already started this HIT and then tried to restart with an expired session. Please return this HIT.
                                 Contact the administrator if you think there has been a mistake."""
                 else:
-                    print 
-                    session.clear()
                     session['db_hit_id'] = req['id']
                     session['comparison_queue'] = req['instagram_queue']['comparisons']
                     random.shuffle(session['comparison_queue'])
