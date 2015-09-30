@@ -6,6 +6,7 @@ from flask.ext.basicauth import BasicAuth
 from datetime import datetime, timedelta
 import random
 import logging
+import traceback
 
 from hashlib import sha512
 
@@ -30,6 +31,7 @@ def index():
         session["assignment_id"] =  request.args.get("assignmentId", "")
         session["amazon_host"] = request.args.get("turkSubmitTo", "") + "/mturk/externalSubmit"
         session["hit_id"] = request.args.get("hitId", "")
+        print session
         return render_template("landing.html")
     else:
         rw = None
@@ -53,7 +55,6 @@ def index():
                     session['correct'] = 0
             except Exception, e:
                 traceback.print_exc()
-                print str(e)
                 pass
         elif 'posttype' in request.form:
             try:
@@ -73,12 +74,11 @@ def index():
                         rw = "wrong"
             except Exception, e:
                 traceback.print_exc()
-                print str(e)
                 pass
             session['current_comparison'] += 1
-        return render_new_post(rw)
+        return render_new_post(rw, session)
 
-def render_new_post(rw = None):
+def render_new_post(rw, session):
     try:
         worker_id = session['worker_id']
         hit_id = session['hit_id']
@@ -105,7 +105,6 @@ def render_new_post(rw = None):
             return render_template("home.html", post1image = post1image, post1id=post1id, post2image = post2image, post2id=post2id, rw = rw, posttype = posttype, compid=compid)
     except Exception, e:
         traceback.print_exc()
-        print str(e)
         return "There was an error"
 
 if __name__ == '__main__':
