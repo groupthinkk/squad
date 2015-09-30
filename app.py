@@ -74,7 +74,7 @@ def index():
                 traceback.print_exc()
                 pass
             session['current_comparison'] += 1
-        return render_new_post(rw, session)
+        return render_new_post(rw)
 
 def render_new_post(rw):
     try:
