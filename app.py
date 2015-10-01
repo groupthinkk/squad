@@ -45,6 +45,8 @@ def index():
                         or 'correct' not in session:
                         return """You already started this HIT and then tried to restart with an expired session. Please return this HIT.
                                 Contact the administrator if you think there has been a mistake."""
+                elif 'messages' in req and 'No more queues available for turker_id: ASGBIM0YYOZSQ.' == req['messages']:
+                    return "We have no more queues for you. You've done too many HITs of ours for now. Please return this HIT. You're awesome!"
                 else:
                     session['db_hit_id'] = req['id']
                     session['comparison_queue'] = req['instagram_queue']['comparisons']
