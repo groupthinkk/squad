@@ -19,36 +19,40 @@
 	<div class="badger wrong">Don't press back!</div>
 	= endif
 	<div class="container">
-		<form method='post' id="masterForm">
 		<div class="row">
 			<div class="col-xs-12">
 				<h2>Which post do you think got most likes?</h2>
 			</div>
 		</div>
-		<input type=hidden name="posttype" value="{{posttype}}">
-		<input type=hidden name="compid" value="{{compid}}">
-		<input type=hidden name="postid" id="postid" value="">
 		<div class="row images">
-			<div class="col-xs-5">
-				<div class="image" id="left" value="{{post1id}}">
-					<div class="overlay"></div>
-					<img src="{{post1image}}">
+			<form method='post' id="post1form">
+				<input type=hidden name="posttype" value="{{posttype}}">
+				<input type=hidden name="compid" value="{{compid}}">
+				<input type=hidden name="postid" value="{{post1id}}">
+				<div class="col-xs-5">
+					<div class="image" id="left" value="{{post1id}}">
+						<div class="overlay"></div>
+						<img src="{{post1image}}">
+					</div>
 				</div>
-			</div>
+			</form>
 
 			<div class="col-xs-2 versus">
 				<span class="text">vs.</span>
 				<div id="timer"></div>
 			</div>
-
-			<div class="col-xs-5">
-				<div class="image" id="right" value="{{post2id}}">
-					<div class="overlay"></div>
-					<img src="{{post2image}}">
+			<form method='post' id="post2form">
+				<input type=hidden name="posttype" value="{{posttype}}">
+				<input type=hidden name="compid" value="{{compid}}">
+				<input type=hidden name="postid" value="{{post2id}}">
+				<div class="col-xs-5">
+					<div class="image" id="right" value="{{post2id}}">
+						<div class="overlay"></div>
+						<img src="{{post2image}}">
+					</div>
 				</div>
-			</div>
+			</form>
 		</div>
-		</form>
 	</div>
 	<script type="text/javascript" src="static/js/main.js"></script>
 </body>
