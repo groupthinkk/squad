@@ -8,13 +8,13 @@ from operator import itemgetter
 API_KEY = 'CazMCDN5G2SuFhET3BuXdLIW01PQxisNLwKRIw'
 
 def submit_new_turk(turk_id, hit_id):
-	API_URL = "http://54.200.77.76/api/v0/predictions/turkers/"
+	API_URL = "http://squadapi.com/api/v0/predictions/turkers/"
 	data = {
 	    'api_key': API_KEY,
 	    'turker_id': turk_id
 	}
 	print requests.post(API_URL, data=data).text
-	API_URL = "http://54.200.77.76/api/v0/predictions/hits/"
+	API_URL = "http://squadapi.com/api/v0/predictions/hits/"
 	data = {
 	    'api_key': API_KEY,
 	    'turker_id': turk_id,
@@ -25,7 +25,7 @@ def submit_new_turk(turk_id, hit_id):
 	return req.json()
 
 def get_comparison(comparison_id):
-	API_URL = "http://54.200.77.76/api/v0/instagram/posts/comparisons/"
+	API_URL = "http://squadapi.com/api/v0/instagram/posts/comparisons/"
 	data = {
 		'api_key': API_KEY,
 		'id': comparison_id
@@ -34,7 +34,7 @@ def get_comparison(comparison_id):
 	return req.json()['results'][0]
 
 def record_comparison(hit_id, comparison_id, choice_id, dec_miliseconds, ux_id):
-    API_URL = "http://54.200.77.76/api/v0/predictions/instagram/"
+    API_URL = "http://squadapi.com/api/v0/predictions/instagram/"
     data = {
         'api_key': API_KEY,
         'hit_id': hit_id,
