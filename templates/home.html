@@ -6,7 +6,6 @@
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
 	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet">
 	<link rel="stylesheet" href="static/css/style.css" type="text/css" />
-	<script type="text/javascript" src="static/js/main.js"></script>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 </head>
 <body>
@@ -31,10 +30,7 @@
 				<input type=hidden name="compid" value="{{compid}}">
 				<input type=hidden name="postid" value="{{post1id}}">
 				<div class="col-xs-5">
-					<div class="image" id="left" value="{{post1id}}">
-						<div class="overlay"></div>
-						<img src="{{post1image}}">
-					</div>
+					<input type='image' src="{{post1image}}" class="image" id="left" value="{{post1id}}">
 				</div>
 			</form>
 
@@ -47,13 +43,11 @@
 				<input type=hidden name="compid" value="{{compid}}">
 				<input type=hidden name="postid" value="{{post2id}}">
 				<div class="col-xs-5">
-					<div class="image" id="right" value="{{post2id}}">
-						<div class="overlay"></div>
-						<img src="{{post2image}}">
-					</div>
+					<input type='image' src="{{post2image}}" class="image" id="right" value="{{post2id}}">
 				</div>
 			</form>
 		</div>
 	</div>
+	<script type="text/javascript" src="static/js/main.js"></script>
 </body>
 </html>

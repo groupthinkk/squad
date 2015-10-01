@@ -29,7 +29,7 @@
     // }
 
     function timerExpired() {
-        document.getElementById("masterForm").submit();
+        document.getElementById("post1form").submit();
     }
 
     var timer;
@@ -68,21 +68,21 @@
                 $('#right').addClass('rotate-right');
             }
         showBadge();
-        $('#left img').one('load', ready);
-        $('#right img').one('load', ready);
+        $('#left').one('load', ready);
+        $('#right').one('load', ready);
     }
 
     function showBadge() {
         $('.badger').fadeIn('fast');
     }
 
-    $('.image').click(function() {
-        stopTimer();
-        $('.image').fadeOut('fast');
-        var choice = $(this).attr("id")==='right' ? 'post2form' : 'post1form';
-        //document.getElementById("postid").setAttribute("value", $(this).attr("value"));
-        document.getElementById(choice).submit();
-    })
+    // $('.image').click(function() {
+    //     stopTimer();
+    //     $('.image').fadeOut('fast');
+    //     var choice = $(this).attr("id")==='right' ? 'post2form' : 'post1form';
+    //     //document.getElementById("postid").setAttribute("value", $(this).attr("value"));
+    //     document.getElementById(choice).submit();
+    // })
 
     $(window).load(showImages());
 
