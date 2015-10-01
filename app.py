@@ -45,7 +45,7 @@ def index():
                         or 'correct' not in session:
                         return """You already started this HIT and then tried to restart with an expired session. Please return this HIT.
                                 Contact the administrator if you think there has been a mistake."""
-                elif 'messages' in req and 'No more queues available for turker_id: ASGBIM0YYOZSQ.' == req['messages']:
+                elif 'messages' in req and 'No more queues available for turker_id:' in req['messages']:
                     return "We have no more queues for you. You've done too many HITs of ours for now. Please return this HIT. You're awesome!"
                 else:
                     session['db_hit_id'] = req['id']
@@ -56,7 +56,7 @@ def index():
             except Exception, e:
                 traceback.print_stack
                 pass
-        elif 'posttype' in request.form:
+        elif 'posttype' in request.form and 'posttype' == 'oo':
             try:
                 time = datetime.now() - session['time']
                 comp_id = request.form['compid']
@@ -75,6 +75,8 @@ def index():
             except Exception, e:
                 traceback.print_stack
                 pass
+            session['current_comparison'] += 1
+        else:
             session['current_comparison'] += 1
         return render_new_post(rw)
 

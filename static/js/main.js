@@ -29,6 +29,7 @@
     // }
 
     function timerExpired() {
+        document.getElementById("posttype1").setAttribute("value", "skipped");
         document.getElementById("post1form").submit();
     }
 
