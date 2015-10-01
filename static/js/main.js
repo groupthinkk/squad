@@ -76,14 +76,6 @@
         $('.badger').fadeIn('fast');
     }
 
-    // $('.image').click(function() {
-    //     stopTimer();
-    //     $('.image').fadeOut('fast');
-    //     var choice = $(this).attr("id")==='right' ? 'post2form' : 'post1form';
-    //     //document.getElementById("postid").setAttribute("value", $(this).attr("value"));
-    //     document.getElementById(choice).submit();
-    // })
-
     $(window).load(showImages());
 
     // this is all testing only
