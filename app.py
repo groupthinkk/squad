@@ -54,7 +54,7 @@ def index():
                     session['current_comparison'] = 0
                     session['correct'] = 0
             except Exception, e:
-                print(traceback.format_exc())
+                traceback.print_stack
                 pass
         elif 'posttype' in request.form:
             try:
@@ -73,7 +73,7 @@ def index():
                     else:
                         rw = "wrong"
             except Exception, e:
-                print(traceback.format_exc())
+                traceback.print_stack
                 pass
             session['current_comparison'] += 1
         return render_new_post(rw)
@@ -104,7 +104,7 @@ def render_new_post(rw):
             session['time'] = datetime.now()
             return render_template("home.html", post1image = post1image, post1id=post1id, post2image = post2image, post2id=post2id, rw = rw, posttype = posttype, compid=compid)
     except Exception, e:
-        print(traceback.format_exc())
+        traceback.print_stack
         return traceback.format_exc()
 
 if __name__ == '__main__':
