@@ -24,14 +24,14 @@ connection = MTurkConnection(aws_access_key_id=AWS_ACCESS_KEY_ID,
 
 url = "https://squadtest.herokuapp.com/"
 title = "(Qualifying) Compare sets of 2 Instagram posts to guess which performed better (<15 minutes)"
-description = "This HIT will take at most 15 minutes (usually much less). If you encounter an issue, send us a message so we can correct it. If you do 60% or better on this HIT, you will be invited to more, higher-paying HITs"
+description = "This HIT will take at most 15 minutes (usually much less). If you encounter an issue, send us a message so we can correct it. If you do 60% or better on this HIT, you will be invited to more, higher-paying HITs."
 keywords = ["easy", "survey", "study", "bonus", "image", "images", "compare", "comparisons", "collection", "data", "research", "listings", "simple", "photo", "answer", "opinion", "question"]
-frame_height = 850
+frame_height = 800
 amount = 1.30
 
 duration = datetime.timedelta(minutes=60)
 lifetime = datetime.timedelta(days=5)
-approval_delay = datetime.timedelta(days=5)
+approval_delay = datetime.timedelta(days=7)
 
 q1 = PercentAssignmentsApprovedRequirement('GreaterThan', 95)
 q2 = NumberHitsApprovedRequirement('GreaterThan', 250)
