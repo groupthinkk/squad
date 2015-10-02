@@ -69,8 +69,7 @@
                 $('#right').addClass('rotate-right');
             }
         showBadge();
-        $('#left').one('load', ready);
-        $('#right').one('load', ready);
+        ready();
     }
 
     function showBadge() {

@@ -31,7 +31,6 @@ def index():
         session["assignment_id"] =  request.args.get("assignmentId", "")
         session["amazon_host"] = request.args.get("turkSubmitTo", "") + "/mturk/externalSubmit"
         session["hit_id"] = request.args.get("hitId", "")
-        print session
         return render_template("landing.html")
     else:
         rw = None
@@ -54,8 +53,8 @@ def index():
                     session['current_comparison'] = 0
                     session['correct'] = 0
             except Exception, e:
-                traceback.print_stack
-                pass
+                raise e
+                return traceback.format_exc()
         elif 'posttype' in request.form and request.form['posttype'] == 'oo':
             try:
                 time = datetime.now() - session['time']
@@ -65,7 +64,6 @@ def index():
                 worker_id = session['worker_id']
                 db_hit_id = session['db_hit_id']
                 ret = dbfunctions.record_comparison(db_hit_id, comp_id, chosen_post_id, miliseconds, "v0")
-                print ret
                 if 'messages' not in ret or 'Instagram prediction with this Hit and Comparison already exists.' not in ret['messages']:
                     if ret["correct"]:
                         rw = "correct"
@@ -73,8 +71,8 @@ def index():
                     else:
                         rw = "wrong"
             except Exception, e:
-                traceback.print_stack
-                pass
+                raise e
+                return traceback.format_exc()
             session['current_comparison'] += 1
         else:
             session['current_comparison'] += 1
@@ -96,7 +94,6 @@ def render_new_post(rw):
             return render_template("ending.html", assignment_id=assignment_id, worker_id=worker_id, hit_id=hit_id, rater_percentage=rater_percentage, amazon_host=amazon_host)
         else: 
             res = dbfunctions.get_comparison(comparison_queue[current_comparison])
-            print res
             post1image = res["post_a"]["image_url"]
             post1id = res['post_a']['id']
             post2image = res["post_b"]["image_url"]
@@ -106,7 +103,7 @@ def render_new_post(rw):
             session['time'] = datetime.now()
             return render_template("home.html", post1image = post1image, post1id=post1id, post2image = post2image, post2id=post2id, rw = rw, posttype = posttype, compid=compid)
     except Exception, e:
-        traceback.print_stack
+        raise e
         return traceback.format_exc()
 
 if __name__ == '__main__':

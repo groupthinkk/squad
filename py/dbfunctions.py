@@ -13,7 +13,6 @@ def submit_new_turk(turk_id, hit_id):
 	    'api_key': API_KEY,
 	    'turker_id': turk_id
 	}
-	print requests.post(API_URL, data=data).text
 	API_URL = "http://squadapi.com/api/v0/predictions/hits/"
 	data = {
 	    'api_key': API_KEY,
@@ -21,7 +20,6 @@ def submit_new_turk(turk_id, hit_id):
 	    'hit_id': hit_id
 	}
 	req = requests.post(API_URL, data=data)
-	print req.json()
 	return req.json()
 
 def get_comparison(comparison_id):
@@ -31,6 +29,8 @@ def get_comparison(comparison_id):
 		'id': comparison_id
 	}
 	req = requests.get(API_URL, params=data)
+	if req.status_code != 200:
+		print "Get Error ", req.text, data
 	return req.json()['results'][0]
 
 def record_comparison(hit_id, comparison_id, choice_id, dec_miliseconds, ux_id):
@@ -45,6 +45,8 @@ def record_comparison(hit_id, comparison_id, choice_id, dec_miliseconds, ux_id):
     }
     print "Record Comparison ", data 
     req = requests.post(API_URL, data=data)
+    if req.status_code != 200:
+    	print "Record Error ", req.text, data
     return req.json()
 
 if __name__ == '__main__':
