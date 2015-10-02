@@ -26,17 +26,21 @@ def index():
 
         if request.args.get("assignmentId") == "ASSIGNMENT_ID_NOT_AVAILABLE":
             return "You haven't accepted the HIT yet"
-        session.clear()
-        session["worker_id"] = request.args.get("workerId", "")
-        session["assignment_id"] =  request.args.get("assignmentId", "")
-        session["amazon_host"] = request.args.get("turkSubmitTo", "") + "/mturk/externalSubmit"
-        session["hit_id"] = request.args.get("hitId", "")
+        try:
+            session.clear()
+            session["worker_id"] = request.args.get("workerId")
+            session["assignment_id"] =  request.args.get("assignmentId")
+            session["amazon_host"] = request.args.get("turkSubmitTo") + "/mturk/externalSubmit"
+            session["hit_id"] = request.args.get("hitId")
+        except:a
+            return "Initial request was malformed"
         return render_template("landing.html")
     else:
         rw = None
         if "start" in request.form:
             try:
                 req = dbfunctions.submit_new_turk(session['worker_id'], session['hit_id'])
+                print req
                 if 'messages' in req and 'Hit with this Hit id and Turker already exists.' in req['messages']:
                     if 'db_hit_id' not in session \
                         or 'comparison_queue' not in session \
