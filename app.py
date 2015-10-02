@@ -56,7 +56,7 @@ def index():
             except Exception, e:
                 traceback.print_stack
                 pass
-        elif 'posttype' in request.form and 'posttype' == 'oo':
+        elif 'posttype' in request.form and request.form['posttype'] == 'oo':
             try:
                 time = datetime.now() - session['time']
                 comp_id = request.form['compid']
