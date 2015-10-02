@@ -43,7 +43,6 @@ def record_comparison(hit_id, comparison_id, choice_id, dec_miliseconds, ux_id):
         'decision_milliseconds': dec_miliseconds,
         'ux_id': ux_id
     }
-    print "Record Comparison ", data 
     req = requests.post(API_URL, data=data)
     if req.status_code != 200:
     	print "Record Error ", req.text, data
