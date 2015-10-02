@@ -20,7 +20,6 @@ def submit_new_turk(turk_id, hit_id):
 	    'turker_id': turk_id,
 	    'hit_id': hit_id
 	}
-	print data
 	req = requests.post(API_URL, data=data)
 	return req.json()
 

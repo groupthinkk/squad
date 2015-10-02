@@ -40,7 +40,6 @@ def index():
         if "start" in request.form:
             try:
                 req = dbfunctions.submit_new_turk(session['worker_id'], session['hit_id'])
-                print req
                 if 'messages' in req and 'Hit with this Hit id and Turker already exists.' in req['messages']:
                     if 'db_hit_id' not in session \
                         or 'comparison_queue' not in session \
