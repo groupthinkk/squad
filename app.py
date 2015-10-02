@@ -32,7 +32,7 @@ def index():
             session["assignment_id"] =  request.args.get("assignmentId")
             session["amazon_host"] = request.args.get("turkSubmitTo") + "/mturk/externalSubmit"
             session["hit_id"] = request.args.get("hitId")
-        except:a
+        except:
             return "Initial request was malformed"
         return render_template("landing.html")
     else:
