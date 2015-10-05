@@ -61,7 +61,6 @@
     }
 
     function showImages() {
-        var loaded = 0;
         function ready() {
                 startTimer(10);
                 $('.image').fadeIn('slow');
