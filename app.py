@@ -36,50 +36,51 @@ def index():
             return "Initial request was malformed"
         return render_template("landing.html")
     else:
-        rw = None
-        if "start" in request.form:
-            try:
-                req = dbfunctions.submit_new_turk(session['worker_id'], session['hit_id'])
-                if 'messages' in req and 'Hit with this Hit id and Turker already exists.' in req['messages']:
-                    if 'db_hit_id' not in session \
-                        or 'comparison_queue' not in session \
-                        or 'current_comparison' not in session \
-                        or 'correct' not in session:
-                        return """You already started this HIT and then tried to restart with an expired session. Please return this HIT.
-                                Contact the administrator if you think there has been a mistake."""
-                elif 'messages' in req and 'No more queues available for turker_id:' in req['messages']:
-                    return "We have no more queues for you. You've done too many HITs of ours for now. Please return this HIT. You're awesome!"
-                else:
-                    session['db_hit_id'] = req['id']
-                    session['comparison_queue'] = req['instagram_queue']['comparisons']
-                    random.shuffle(session['comparison_queue'])
-                    session['current_comparison'] = 0
-                    session['correct'] = 0
-            except Exception, e:
-                raise e
-                return traceback.format_exc()
-        elif 'posttype' in request.form and request.form['posttype'] == 'oo':
-            try:
-                time = datetime.now() - session['time']
-                comp_id = request.form['compid']
-                chosen_post_id = request.form['postid']
-                miliseconds = time.seconds * 1000000 + time.microseconds
-                worker_id = session['worker_id']
-                db_hit_id = session['db_hit_id']
-                ret = dbfunctions.record_comparison(db_hit_id, comp_id, chosen_post_id, miliseconds, "v0")
-                if 'messages' not in ret or 'Instagram prediction with this Hit and Comparison already exists.' not in ret['messages']:
-                    if ret["correct"]:
-                        rw = "correct"
-                        session['correct'] += 1
+        try:
+            rw = None
+            if "start" in request.form:
+                try:
+                    req = dbfunctions.submit_new_turk(session['worker_id'], session['hit_id'])
+                    if 'messages' in req and 'Hit with this Hit id and Turker already exists.' in req['messages']:
+                        if 'db_hit_id' not in session \
+                            or 'comparison_queue' not in session \
+                            or 'current_comparison' not in session \
+                            or 'correct' not in session:
+                            return """You already started this HIT and then tried to restart with an expired session. Please return this HIT.
+                                    Contact the administrator if you think there has been a mistake."""
+                    elif 'messages' in req and 'No more queues available for turker_id:' in req['messages']:
+                        return "We have no more queues for you. You've done too many HITs of ours for now. Please return this HIT. You're awesome!"
                     else:
-                        rw = "wrong"
-            except Exception, e:
-                raise e
-                return traceback.format_exc()
-            session['current_comparison'] += 1
-        else:
-            session['current_comparison'] += 1
-        return render_new_post(rw)
+                        session['db_hit_id'] = req['id']
+                        session['comparison_queue'] = req['instagram_queue']['comparisons']
+                        random.shuffle(session['comparison_queue'])
+                        session['current_comparison'] = 0
+                        session['correct'] = 0
+                except Exception, e:
+                    return traceback.format_exc()
+            elif 'posttype' in request.form and request.form['posttype'] == 'oo':
+                try:
+                    time = datetime.now() - session['time']
+                    comp_id = request.form['compid']
+                    chosen_post_id = request.form['postid']
+                    miliseconds = time.seconds * 1000000 + time.microseconds
+                    worker_id = session['worker_id']
+                    db_hit_id = session['db_hit_id']
+                    ret = dbfunctions.record_comparison(db_hit_id, comp_id, chosen_post_id, miliseconds, "v0")
+                    if 'messages' not in ret or 'Instagram prediction with this Hit and Comparison already exists.' not in ret['messages']:
+                        if ret["correct"]:
+                            rw = "correct"
+                            session['correct'] += 1
+                        else:
+                            rw = "wrong"
+                except Exception, e:
+                    return traceback.format_exc()
+                session['current_comparison'] += 1
+            else:
+                session['current_comparison'] += 1
+            return render_new_post(rw)
+        except:
+            return traceback.format_exc()
 
 def render_new_post(rw):
     try:
@@ -106,11 +107,10 @@ def render_new_post(rw):
             session['time'] = datetime.now()
             return render_template("home.html", post1image = post1image, post1id=post1id, post2image = post2image, post2id=post2id, rw = rw, posttype = posttype, compid=compid)
     except Exception, e:
-        raise e
         return traceback.format_exc()
 
 if __name__ == '__main__':
     stream_handler = logging.StreamHandler()
-    stream_handler.setLevel(logging.INFO)
     app.logger.addHandler(stream_handler)
+    app.logger.setLevel(logging.INFO)
     app.run(debug=True)
