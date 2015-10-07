@@ -97,7 +97,6 @@ def render_new_post(rw):
             hit_id = session['hit_id']
             amazon_host = session['amazon_host']
             rater_percentage = round(session['correct'] * 100.0 / len(comparison_queue), 1)
-            session.clear()
             return render_template("ending.html", assignment_id=assignment_id, worker_id=worker_id, hit_id=hit_id, rater_percentage=rater_percentage, amazon_host=amazon_host)
         else: 
             res = dbfunctions.get_comparison(comparison_queue[current_comparison])
