@@ -27,11 +27,14 @@ def index():
         if request.args.get("assignmentId") == "ASSIGNMENT_ID_NOT_AVAILABLE":
             return "You haven't accepted the HIT yet"
         try:
-            session.clear()
-            session["worker_id"] = request.args.get("workerId")
-            session["assignment_id"] =  request.args.get("assignmentId")
-            session["amazon_host"] = request.args.get("turkSubmitTo") + "/mturk/externalSubmit"
-            session["hit_id"] = request.args.get("hitId")
+            if not (("worker_id" in session and session['worker_id'] == request.args.get("workerId")) \
+                and ("assignment_id" in session and session['assignment_id'] == request.args.get("assignmentId")) \
+                and ("hit_id" in session and session['hit_id'] == request.args.get("hitId"))):
+                    session.clear()
+                    session["worker_id"] = request.args.get("workerId")
+                    session["assignment_id"] =  request.args.get("assignmentId")
+                    session["amazon_host"] = request.args.get("turkSubmitTo") + "/mturk/externalSubmit"
+                    session["hit_id"] = request.args.get("hitId")
         except:
             return "Initial request was malformed"
         return render_template("landing.html")
@@ -80,7 +83,7 @@ def index():
                 session['current_comparison'] += 1
             return render_new_post(rw)
         except:
-            return traceback.format_exc()
+            return traceback.format_exc(), session
 
 def render_new_post(rw):
     try:
