@@ -20,6 +20,26 @@ env.line_statement_prefix = '='
 
 basic_auth = BasicAuth(app)
 
+@app.route("/bigbonus", methods = ["GET"])
+def big_bonus():
+    try:
+        if request.args.get("assignmentId") == "ASSIGNMENT_ID_NOT_AVAILABLE":
+            return "You haven't accepted the HIT yet"
+        try:
+            if not (("worker_id" in session and session['worker_id'] == request.args.get("workerId")) \
+                and ("assignment_id" in session and session['assignment_id'] == request.args.get("assignmentId")) \
+                and ("hit_id" in session and session['hit_id'] == request.args.get("hitId"))):
+                    session.clear()
+                    session["worker_id"] = request.args.get("workerId")
+                    session["assignment_id"] =  request.args.get("assignmentId")
+                    session["amazon_host"] = request.args.get("turkSubmitTo") + "/mturk/externalSubmit"
+                    session["hit_id"] = request.args.get("hitId")
+        except:
+            return "Initial request was malformed"
+        return render_template("big_bonus_landing.html")
+    except:
+        return traceback.format_exc()
+
 @app.route("/", methods = ["GET", "POST"])
 def index():
     if request.method == "GET":
