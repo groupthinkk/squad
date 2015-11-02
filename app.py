@@ -122,6 +122,7 @@ def render_new_post(rw):
             return render_template("ending.html", assignment_id=assignment_id, worker_id=worker_id, hit_id=hit_id, rater_percentage=rater_percentage, amazon_host=amazon_host)
         else: 
             res = dbfunctions.get_comparison(comparison_queue[current_comparison])
+            print res["post_a"]
             post1image = res["post_a"]["image_url"]
             post1id = res['post_a']['id']
             post2image = res["post_b"]["image_url"]

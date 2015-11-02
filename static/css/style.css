@@ -122,7 +122,7 @@ body {
   animation: rotate-right 0.8s 1 forwards;
 }
 .image {
-  padding: 10px;
+  /*padding: 10px;*/
   background: #fff;
   border-radius: 3px;
   border: 1px solid #ccc;
@@ -131,7 +131,7 @@ body {
   -webkit-box-shadow: 2px 1px 5px 0px rgba(153, 153, 153, 0.2);
   -moz-box-shadow: 2px 1px 5px 0px rgba(153, 153, 153, 0.2);
   box-shadow: 2px 1px 5px 0px rgba(153, 153, 153, 0.2);
-  display: none;
+  /*display: none;*/
   cursor: pointer;
 }
 .image img {
@@ -246,4 +246,103 @@ h2 {
   text-transform: uppercase;
   text-align: center;
   margin: 30px auto 50px auto;
+}
+
+.post {
+  background-color: #fff;
+  border: 1px solid #edeeee;
+  border-radius: 3px;
+  margin-bottom: 60px;
+  margin-left: -1px;
+  margin-right: -1px;
+  font-family: Montserrat, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+}
+
+.post-header {
+  display: flex;
+  height: 64px;
+  padding: 14px 20px;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+}
+
+.user-avatar {
+  -webkit-flex-basis: 30px;
+  -ms-flex-preferred-size: 30px;
+  flex-basis: 30px;
+  height: 30px;
+  margin: -1px 10px -1px -5px;
+  width: 30px;
+  background-color: #fbfbfb;
+  border-radius: 50%;
+  border: 1px solid #cccfd0;
+  box-sizing: border-box;
+  -webkit-flex-shrink: 0;
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
+}
+
+.user-name {
+  color: #125688;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.timestamp {
+  margin-left: auto;
+  line-height: 18px;
+  color: #a5a7aa;
+}
+
+.post-info {
+  padding: 12px 24px 12px 24px;
+  color: #000;
+}
+
+.likes {
+  margin-bottom: 7px;
+  color: #4b4f54;
+}
+
+.feedback {
+  border-top: 1px solid #eeefef;
+  margin: 8px 24px 12px 24px;
+  padding: 14px 0 0 0;
+  display: flex;
+  flex-direction: row;
+}
+
+.heart {
+  height: 44px;
+  width: 44px;
+  margin-left: -9px;
+  margin-right: 3px;
+  display: inline-block;
+  background-image: url(../img/core-sprites-ad25df.png);
+  background-repeat: no-repeat;
+  background-position: -290px -146px;
+
+}
+
+.add-comment {
+  line-height: 40px;
+}
+
+.dot-dot-dot {
+  height: 44px;
+  width: 44px;
+  margin-left: auto;
+  margin-right: -10px;
+  display: inline-block;
+  background-image: url(../img/core-sprites-ad25df.png);
+  background-repeat: no-repeat;
+  background-position: -298px -264px;
 }

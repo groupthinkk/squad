@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <link href='https://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+    <title>Groupthink</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../static/css/style.css" type="text/css" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <h2>Which post do you think got most likes?</h2>
+            </div>
+        </div>
+        <div class="row images">
+            <form method='post' id="post1form">
+                <input type=hidden id="posttype1" name="posttype" value="oo">
+                <input type=hidden name="compid" value="964">
+                <input type=hidden name="postid" value="31730">
+                <div class="col-xs-5">
+                    <article class="post">
+                        <header class="post-header">
+                            <img class="user-avatar" src="https://scontent-ord1-1.cdninstagram.com/hphotos-xaf1/t51.2885-19/s150x150/12135483_1630248037263763_596741713_a.jpg">
+                            <div class="user-name">trevorpikhart</div>
+                            <div class="timestamp">11/01/15</div>
+                        </header>
+                        <div class="post-image">
+                            <div class="post-image-holder">
+                                <input type='image' src="https://scontent.cdninstagram.com/hphotos-xaf1/t51.2885-15/s640x640/sh0.08/e35/11906272_131859337168272_45021020_n.jpg" class="image" id="left" value="31730">
+                            </div>
+                        </div>
+                        <div class="post-info">
+                            <div class="likes">142 likes</div>
+                            <div class="caption"><span class="user-name">trevorpikhart</span> Congrats @amyschumer!!!! Who else is glad she won? @comedycentral #Emmys #InsideAmy</div>
+                        </div>
+                        <div class="feedback">
+                            <span class="heart"></span>
+                            <span class="add-comment">Add a comment…</span>
+                            <span class="dot-dot-dot"></span>
+                        </div>
+                    </article>
+
+                </div>
+            </form>
+
+            <div class="col-xs-2 versus">
+                <span class="text">vs.</span>
+                <div id="timer"></div>
+            </div>
+            <form method='post' id="post2form">
+                <input type=hidden name="posttype" value="oo">
+                <input type=hidden name="compid" value="964">
+                <input type=hidden name="postid" value="31737">
+                <div class="col-xs-5">
+                    <input type='image' src="https://scontent.cdninstagram.com/hphotos-xaf1/t51.2885-15/s640x640/sh0.08/e35/11325379_1650967168477812_612060723_n.jpg" class="image" id="right" value="31737">
+                </div>
+            </form>
+        </div>
+    </div>
+    <script type="text/javascript" src="static/js/main.js"></script>
+</body>
+</html>
