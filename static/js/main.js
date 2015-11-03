@@ -62,10 +62,10 @@
 
     function showImages() {
         function ready() {
-                startTimer(10);
+                // startTimer(10);
                 $('.image').fadeIn('slow');
-                $('#post1').addClass('rotate-left');
-                $('#post2').addClass('rotate-right');
+                // $('#post1').addClass('rotate-left');
+                // $('#post2').addClass('rotate-right');
             }
         showBadge();
         ready();

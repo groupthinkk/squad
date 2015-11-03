@@ -2,10 +2,12 @@
 body {
   padding: 0;
   margin: 0;
-  background: url('../background.png');
+  /*background: url('../background.png');*/
+  background-color: #fafafa;
   font-size: 16px;
-  color: #999;
-  font-family: 'Lato', sans-serif;
+  color: #333;
+  /*font-family: 'Lato', sans-serif;*/
+  font-family: Montserrat, "Helvetica Neue", Helvetica, Arial, sans-serif;
   line-height: 20px;
 }
 .container {
@@ -227,7 +229,10 @@ h1 {
   text-align: center;
 }
 h2 {
-  font-size: 30px;
+  margin-top: 0;
+  font-size: 22px;
+  color: #333;
+/*  font-size: 30px;
   font-weight: 900;
   line-height: 35px;
   color: #fff;
@@ -236,7 +241,7 @@ h2 {
   padding-top: 6px;
   text-transform: uppercase;
   text-align: center;
-  margin: 30px auto 50px auto;
+  margin: 30px auto 50px auto;*/
 }
 
 #post1, #post2 {
@@ -300,7 +305,7 @@ h2 {
 
 .post-info {
   padding: 12px 24px 12px 24px;
-  color: #000;
+  /*color: #000;*/
 }
 
 .likes {
@@ -341,4 +346,41 @@ h2 {
   background-image: url(../img/core-sprites-ad25df.png);
   background-repeat: no-repeat;
   background-position: -298px -264px;
+}
+
+nav {
+  margin-bottom: 30px;
+  border-bottom: 1px solid #edeeee;
+  -webkit-box-ordinal-group: 2;
+  -webkit-order: 1;
+  -ms-flex-order: 1;
+  order: 1;
+  padding: 0 20px;
+  background-color: white;
+}
+
+.nav-main {
+  height: 77px;
+  padding: 26px 0;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.instagram-logo {
+  background-image: url(../img/core-sprites-ad25df.png);
+  background-repeat: no-repeat;
+  background-size: 257px 243px;
+  background-position: 0px -132px;
+  height: 28px;
+  width: 102px;
+}
+
+[flex] {
+  display: flex;
 }
