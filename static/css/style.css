@@ -12,6 +12,7 @@ body {
 }
 .container {
   position: relative;
+  min-width: 720px;
 }
 #timer {
   height: 6px;
