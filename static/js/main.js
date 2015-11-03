@@ -129,17 +129,3 @@ $(document).ready(function() {
     $('#timestamp1').text(timestamp1);
     $('#timestamp2').text(timestamp2);
 });
-
-$(function(){
-  setInterval(function(){
-    var divUtc = $('#divUTC');
-    var divLocal = $('#divLocal');
-    //put UTC time into divUTC
-    divUtc.text(moment.utc().format('YYYY-MM-DD HH:mm:ss'));
-
-    //get text from divUTC and conver to local timezone
-    var localTime  = moment.utc(divUtc.text()).toDate();
-    localTime = moment(localTime).format('YYYY-MM-DD HH:mm:ss');
-    divLocal.text(localTime);
-  },1000);
-});
