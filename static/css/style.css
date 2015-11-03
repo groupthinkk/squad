@@ -406,3 +406,25 @@ nav {
 [flex] {
   display: flex;
 }
+
+@media (max-width:992px) {
+  .post {
+    font-size: 12px;
+  }
+
+  .post-header {
+    height: 50px;
+    padding: 14px 18px;
+  }
+
+  .post-info {
+    padding: 12px 18px 12px 18px;
+  }
+
+  .user-avatar {
+    flex-basis: 24px;
+    width: 24px;
+    height: 24px;
+    margin: -1px 6px -1px -5px;
+  }
+}

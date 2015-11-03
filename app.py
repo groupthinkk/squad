@@ -127,15 +127,17 @@ def render_new_post(rw):
             post1id = res['post_a']['id']
             post1likes = res['post_a']['likes_count']
             post1caption = res['post_a']['caption']
+            post1timestamp = res['post_a']['created_datetime']
             post2image = res["post_b"]["image_url"]
             post2id = res['post_b']['id']
             post2likes = res['post_b']['likes_count']
             post2caption = res['post_b']['caption']
+            post2timestamp = res['post_b']['created_datetime']
             compid = comparison_queue[current_comparison]
             posttype = 'oo'
             session['time'] = datetime.now()
-            return render_template("home.html", post1image = post1image, post1id=post1id, post1likes=post1likes, post1caption=post1caption, \
-                                   post2image = post2image, post2id=post2id, post2likes=post2likes, post2caption=post2caption, \
+            return render_template("home.html", post1image = post1image, post1id=post1id, post1likes=post1likes, post1caption=post1caption, post1timestamp=post1timestamp, \
+                                   post2image = post2image, post2id=post2id, post2likes=post2likes, post2caption=post2caption, post2timestamp=post2timestamp, \
                                    rw = rw, posttype = posttype, compid=compid)
     except Exception, e:
         return traceback.format_exc()

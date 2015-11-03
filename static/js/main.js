@@ -62,11 +62,9 @@
 
     function showImages() {
         function ready() {
-                // startTimer(10);
-                $('.image').fadeIn('slow');
-                // $('#post1').addClass('rotate-left');
-                // $('#post2').addClass('rotate-right');
-            }
+            // startTimer(10);
+            $('.image').fadeIn('slow');
+        }
         showBadge();
         ready();
     }
@@ -120,3 +118,28 @@
 
 
 })(window,jQuery);
+
+$(document).ready(function() {
+    var timeFormat = 'dd MMM D, h:mma';
+    var timestamp1 = moment.utc(post1timestamp).toDate();
+    timestamp1 = moment(post1timestamp).format(timeFormat);
+    var timestamp2 = moment.utc(post2timestamp).toDate();
+    timestamp2 = moment(post2timestamp).format(timeFormat);
+
+    $('#timestamp1').text(timestamp1);
+    $('#timestamp2').text(timestamp2);
+});
+
+$(function(){
+  setInterval(function(){
+    var divUtc = $('#divUTC');
+    var divLocal = $('#divLocal');
+    //put UTC time into divUTC
+    divUtc.text(moment.utc().format('YYYY-MM-DD HH:mm:ss'));
+
+    //get text from divUTC and conver to local timezone
+    var localTime  = moment.utc(divUtc.text()).toDate();
+    localTime = moment(localTime).format('YYYY-MM-DD HH:mm:ss');
+    divLocal.text(localTime);
+  },1000);
+});

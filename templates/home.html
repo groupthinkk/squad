@@ -47,7 +47,7 @@
                         <header class="post-header">
                             <img class="user-avatar" src="https://scontent-ord1-1.cdninstagram.com/hphotos-xaf1/t51.2885-19/s150x150/12135483_1630248037263763_596741713_a.jpg">
                             <div class="user-name">trevorpikhart</div>
-                            <div class="timestamp">11/01/15</div>
+                            <div class="timestamp" id="timestamp1"></div>
                         </header>
                         <div class="post-image">
                             <div class="post-image-holder">
@@ -55,7 +55,6 @@
                             </div>
                         </div>
                         <div class="post-info">
-                            <!-- <div class="likes">{{post1likes}} likes</div> -->
                             <div class="caption"><span class="user-name">trevorpikhart</span> {{post1caption}}</div>
                         </div>
                         <div class="feedback">
@@ -80,7 +79,7 @@
                         <header class="post-header">
                             <img class="user-avatar" src="https://scontent-ord1-1.cdninstagram.com/hphotos-xaf1/t51.2885-19/s150x150/12135483_1630248037263763_596741713_a.jpg">
                             <div class="user-name">trevorpikhart</div>
-                            <div class="timestamp">11/01/15</div>
+                            <div class="timestamp" id="timestamp2"></div>
                         </header>
                         <div class="post-image">
                             <div class="post-image-holder">
@@ -88,7 +87,6 @@
                             </div>
                         </div>
                         <div class="post-info">
-                            <!-- <div class="likes">{{post2likes}} likes</div> -->
                             <div class="caption"><span class="user-name">trevorpikhart</span> {{post2caption}}</div>
                         </div>
                         <div class="feedback">
@@ -101,6 +99,11 @@
 			</form>
 		</div>
 	</div>
+    <script>
+        var post1timestamp = "{{ post1timestamp }}";
+        var post2timestamp = "{{ post2timestamp }}";
+    </script>
+    <script type="text/javascript" src="static/js/moment.js"></script>
 	<script type="text/javascript" src="static/js/main.js"></script>
 </body>
 </html>
