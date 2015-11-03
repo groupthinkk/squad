@@ -9,7 +9,6 @@ body {
   line-height: 20px;
 }
 .container {
-  margin: 40px auto;
   position: relative;
 }
 #timer {
@@ -122,16 +121,8 @@ body {
   animation: rotate-right 0.8s 1 forwards;
 }
 .image {
-  /*padding: 10px;*/
   background: #fff;
-  border-radius: 3px;
-  border: 1px solid #ccc;
   width: 100%;
-  max-width: 450px;
-  -webkit-box-shadow: 2px 1px 5px 0px rgba(153, 153, 153, 0.2);
-  -moz-box-shadow: 2px 1px 5px 0px rgba(153, 153, 153, 0.2);
-  box-shadow: 2px 1px 5px 0px rgba(153, 153, 153, 0.2);
-  /*display: none;*/
   cursor: pointer;
 }
 .image img {
@@ -246,6 +237,11 @@ h2 {
   text-transform: uppercase;
   text-align: center;
   margin: 30px auto 50px auto;
+}
+
+#post1, #post2 {
+  cursor: pointer;
+  max-width: 450px;
 }
 
 .post {

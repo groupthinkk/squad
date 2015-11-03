@@ -64,8 +64,8 @@
         function ready() {
                 startTimer(10);
                 $('.image').fadeIn('slow');
-                $('#left').addClass('rotate-left');
-                $('#right').addClass('rotate-right');
+                $('#post1').addClass('rotate-left');
+                $('#post2').addClass('rotate-right');
             }
         showBadge();
         ready();
@@ -76,6 +76,12 @@
     }
 
     $(window).load(showImages());
+
+    $('.post').click(function() {
+        var id = '#' + $(this).attr('id') + 'form';
+        console.log('id = ', id);
+        $(id).submit();
+    });
 
     // this is all testing only
     // var badges = [
