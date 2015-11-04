@@ -122,7 +122,8 @@ def render_new_post(rw):
             return render_template("ending.html", assignment_id=assignment_id, worker_id=worker_id, hit_id=hit_id, rater_percentage=rater_percentage, amazon_host=amazon_host)
         else: 
             res = dbfunctions.get_comparison(comparison_queue[current_comparison])
-            print res["post_a"]
+            username = res['user']['username']
+            profile = res['user']['image_url']
             post1image = res["post_a"]["image_url"]
             post1id = res['post_a']['id']
             post1likes = res['post_a']['likes_count']
@@ -136,8 +137,11 @@ def render_new_post(rw):
             compid = comparison_queue[current_comparison]
             posttype = 'oo'
             session['time'] = datetime.now()
-            return render_template("home.html", post1image = post1image, post1id=post1id, post1likes=post1likes, post1caption=post1caption, post1timestamp=post1timestamp, \
-                                   post2image = post2image, post2id=post2id, post2likes=post2likes, post2caption=post2caption, post2timestamp=post2timestamp, \
+            return render_template("home.html", username=username, profile=profile, \
+                                   post1image = post1image, post1id=post1id, post1likes=post1likes, \
+                                   post1caption=post1caption, post1timestamp=post1timestamp, \
+                                   post2image = post2image, post2id=post2id, post2likes=post2likes, \
+                                   post2caption=post2caption, post2timestamp=post2timestamp, \
                                    rw = rw, posttype = posttype, compid=compid)
     except Exception, e:
         return traceback.format_exc()
