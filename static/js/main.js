@@ -62,7 +62,7 @@
 
     function showImages() {
         function ready() {
-            // startTimer(10);
+            //startTimer(10);
             $('.image').fadeIn('slow');
         }
         showBadge();
@@ -70,7 +70,9 @@
     }
 
     function showBadge() {
-        $('.badger').fadeIn('fast');
+        $('.badger').fadeIn('fast', function() {
+            $(this).delay(1000).fadeOut('slow');
+        });
     }
 
     $(window).load(showImages());

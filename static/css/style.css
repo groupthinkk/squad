@@ -27,7 +27,7 @@ body {
   text-align: center;
   width: 200px;
   height: 200px;
-  top: 200px;
+  top: 60px;
   left: 50%;
   margin: 0 0 0 -100px;
   color: #fff;
@@ -137,13 +137,12 @@ body {
   font-weight: 300;
   position: relative;
   height: 100%;
-  /*margin: 15% 0 0 0;*/
   font-size: 50px;
   text-transform: uppercase;
   text-align: center;
   line-height: 50px;
   color: #e0d3af;
-  top: 130px;
+  top: 170px;
 }
 
 .versus .text {
