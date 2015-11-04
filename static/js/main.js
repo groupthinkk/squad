@@ -62,7 +62,7 @@
 
     function showImages() {
         function ready() {
-            startTimer(10);
+            //startTimer(10);
             $('.image').fadeIn('slow');
         }
         showBadge();
@@ -94,10 +94,21 @@
         });
     }
 
+    function bindArrowKeys() {
+        $('body').on('keyup', function(e) {
+            if (e.which === 37) { // left
+                $('#post1form').submit();
+            } else if (e.which === 39) { // right
+                $('#post2form').submit();
+            }
+        });
+    }
+
     window.init = function() {
         showTimestamps();
         showImages();
         setupPostSubmit();
+        bindArrowKeys();
     };
 
     // this is all testing only
