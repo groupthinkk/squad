@@ -34,6 +34,8 @@ def big_bonus():
                     session["assignment_id"] =  request.args.get("assignmentId")
                     session["amazon_host"] = request.args.get("turkSubmitTo") + "/mturk/externalSubmit"
                     session["hit_id"] = request.args.get("hitId")
+                    if "queueId" in request.form:
+                            session["queue_id"] = request.args.get("queueId")
         except:
             return "Initial request was malformed"
         return render_template("big_bonus_landing.html")
@@ -55,6 +57,8 @@ def index():
                         session["assignment_id"] =  request.args.get("assignmentId")
                         session["amazon_host"] = request.args.get("turkSubmitTo") + "/mturk/externalSubmit"
                         session["hit_id"] = request.args.get("hitId")
+                        if "queueId" in request.args:
+                            session["queue_id"] = request.args.get("queueId")
             except:
                 return "Initial request was malformed"
             return render_template("landing.html")
@@ -65,7 +69,11 @@ def index():
             rw = None
             if "start" in request.form:
                 try:
-                    req = dbfunctions.submit_new_turk(session['worker_id'], session['hit_id'])
+                    if "queue_id" in session:
+                        print "yay queues"
+                        req = dbfunctions.submit_new_turk(session['worker_id'], session['hit_id'], session['queue_id'])
+                    else:
+                        req = dbfunctions.submit_new_turk(session['worker_id'], session['hit_id'])
                     if 'messages' in req and 'Hit with this Hit id and Turker already exists.' in req['messages']:
                         if 'db_hit_id' not in session \
                             or 'comparison_queue' not in session \
@@ -81,7 +89,7 @@ def index():
                         random.shuffle(session['comparison_queue'])
                         session['current_comparison'] = 0
                         session['correct'] = 0
-                except Exception, e:
+                except:
                     return traceback.format_exc()
             elif 'posttype' in request.form and request.form['posttype'] == 'oo':
                 try:
@@ -98,7 +106,7 @@ def index():
                             session['correct'] += 1
                         else:
                             rw = "wrong"
-                except Exception, e:
+                except:
                     return traceback.format_exc()
                 session['current_comparison'] += 1
             else:
@@ -130,7 +138,7 @@ def render_new_post(rw):
             posttype = 'oo'
             session['time'] = datetime.now()
             return render_template("home.html", post1image = post1image, post1id=post1id, post2image = post2image, post2id=post2id, rw = rw, posttype = posttype, compid=compid)
-    except Exception, e:
+    except:
         return traceback.format_exc()
 
 if __name__ == '__main__':

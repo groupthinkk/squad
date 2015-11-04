@@ -2,7 +2,7 @@ import os
 from boto.mturk.connection import MTurkConnection
 from boto.mturk.question import ExternalQuestion
 from boto.mturk.price import Price
-from boto.mturk.qualification import Qualifications, PercentAssignmentsApprovedRequirement, NumberHitsApprovedRequirement
+from boto.mturk.qualification import Qualifications, PercentAssignmentsApprovedRequirement, NumberHitsApprovedRequirement, Requirement
 
 import datetime
 
@@ -22,23 +22,26 @@ connection = MTurkConnection(aws_access_key_id=AWS_ACCESS_KEY_ID,
                              host=HOST,
                              debug=1)
 
-url = "https://squadtest.herokuapp.com/bigbonus"
-title = "(Qualifying) ($7 BONUS) Compare sets of 2 Instagram posts to guess which performed better (<15 minutes)"
-description = "This HIT will take at most 15 minutes (usually much less). Anyone may take this HIT, including those who have already qualified. If you encounter an issue, send us a message so we can correct it. If you do 70% or better on this HIT, you will receive a $7 bonus and be invited to more, higher-paying HITs."
+url = "https://squadtest.herokuapp.com/"
+title = "[Experts] Compare sets of 2 Instagram posts to guess which performed better (<15 minutes)"
+description = "This HIT will take at most 15 minutes (usually much less). If you encounter an issue, send us a message so we can correct it. If you do 60% or better on this HIT, you will receive a $1 bonus. Anyone who qualifies can take this HIT."
 keywords = ["easy", "survey", "study", "bonus", "image", "images", "compare", "comparisons", "collection", "data", "research", "listings", "simple", "photo", "answer", "opinion", "question"]
 frame_height = 800
-amount = .50
+amount = 2
 
 duration = datetime.timedelta(hours=2)
-lifetime = datetime.timedelta(days=5)
+lifetime = datetime.timedelta(days=3)
 approval_delay = datetime.timedelta(days=7)
 
 q1 = PercentAssignmentsApprovedRequirement('GreaterThan', 95)
 q2 = NumberHitsApprovedRequirement('GreaterThan', 250)
+qualification_type_id = connection.search_qualification_types("squad_rating")[0].QualificationTypeId
+q3 = Requirement(qualification_type_id, 'GreaterThan', 57)
 if os.environ.get("DEV_PROD"):
-    qualifications = Qualifications([q1, q2])
+    qualifications = Qualifications([q1, q2, q3])
 else: 
-    qualifications = Qualifications()
+    #qualifications = Qualifications()
+    qualifications = Qualifications([q1, q2, q3])
 
 questionform = ExternalQuestion(url, frame_height)
 
@@ -47,7 +50,7 @@ for _ in xrange(1):
         title=title,
         description=description,
         keywords=keywords,
-        max_assignments=500,
+        max_assignments=400,
         question=questionform,
         reward=Price(amount=amount),
         response_groups=('Minimal', 'HITDetail', 'HITQuestion', 'HITAssignmentSummary'),

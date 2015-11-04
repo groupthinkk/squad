@@ -7,7 +7,7 @@ from operator import itemgetter
 
 API_KEY = 'CazMCDN5G2SuFhET3BuXdLIW01PQxisNLwKRIw'
 
-def submit_new_turk(turk_id, hit_id):
+def submit_new_turk(turk_id, hit_id, queue_id=None):
 	API_URL = "http://squadapi.com/api/v0/predictions/turkers/"
 	data = {
 	    'api_key': API_KEY,
@@ -15,11 +15,19 @@ def submit_new_turk(turk_id, hit_id):
 	}
 	requests.post(API_URL, data=data)
 	API_URL = "http://squadapi.com/api/v0/predictions/hits/"
-	data = {
-	    'api_key': API_KEY,
-	    'turker_id': turk_id,
-	    'hit_id': hit_id
-	}
+	if queue_id:
+		data = {
+		    'api_key': API_KEY,
+		    'turker_id': turk_id,
+		    'hit_id': hit_id,
+		    'queue_id': queue_id
+		}
+	else:
+		data = {
+		    'api_key': API_KEY,
+		    'turker_id': turk_id,
+		    'hit_id': hit_id
+		}
 	req = requests.post(API_URL, data=data)
 	return req.json()
 
