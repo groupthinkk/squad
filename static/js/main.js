@@ -62,7 +62,7 @@
 
     function showImages() {
         function ready() {
-            //startTimer(10);
+            startTimer(10);
             $('.image').fadeIn('slow');
         }
         showBadge();
@@ -75,13 +75,30 @@
         });
     }
 
-    $(window).load(showImages());
+    function showTimestamps() {
+        var timeFormat = 'dd MMM D, h:mma';
+        var timestamp1 = moment.utc(post1timestamp).toDate();
+        timestamp1 = moment(post1timestamp).format(timeFormat);
+        var timestamp2 = moment.utc(post2timestamp).toDate();
+        timestamp2 = moment(post2timestamp).format(timeFormat);
 
-    $('.post').click(function() {
-        var id = '#' + $(this).attr('id') + 'form';
-        console.log('id = ', id);
-        $(id).submit();
-    });
+        $('#timestamp1').text(timestamp1);
+        $('#timestamp2').text(timestamp2);
+    }
+
+    function setupPostSubmit() {
+        $('.post').click(function() {
+            var id = '#' + $(this).attr('id') + 'form';
+            console.log('id = ', id);
+            $(id).submit();
+        });
+    }
+
+    window.init = function() {
+        showTimestamps();
+        showImages();
+        setupPostSubmit();
+    };
 
     // this is all testing only
     // var badges = [
@@ -116,18 +133,8 @@
     //  }
     // }
 
-
-
-
 })(window,jQuery);
 
 $(document).ready(function() {
-    var timeFormat = 'dd MMM D, h:mma';
-    var timestamp1 = moment.utc(post1timestamp).toDate();
-    timestamp1 = moment(post1timestamp).format(timeFormat);
-    var timestamp2 = moment.utc(post2timestamp).toDate();
-    timestamp2 = moment(post2timestamp).format(timeFormat);
-
-    $('#timestamp1').text(timestamp1);
-    $('#timestamp2').text(timestamp2);
+    init();
 });
