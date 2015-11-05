@@ -34,6 +34,8 @@ def big_bonus():
                     session["assignment_id"] =  request.args.get("assignmentId")
                     session["amazon_host"] = request.args.get("turkSubmitTo") + "/mturk/externalSubmit"
                     session["hit_id"] = request.args.get("hitId")
+                    if "queueId" in request.form:
+                        session["queue_id"] = request.args.get("queueId")
         except:
             return "Initial request was malformed"
         return render_template("big_bonus_landing.html")
@@ -55,6 +57,8 @@ def index():
                         session["assignment_id"] =  request.args.get("assignmentId")
                         session["amazon_host"] = request.args.get("turkSubmitTo") + "/mturk/externalSubmit"
                         session["hit_id"] = request.args.get("hitId")
+                        if "queueId" in request.args:
+                            session["queue_id"] = request.args.get("queueId")
             except:
                 return "Initial request was malformed"
             return render_template("landing.html")
@@ -65,7 +69,10 @@ def index():
             rw = None
             if "start" in request.form:
                 try:
-                    req = dbfunctions.submit_new_turk(session['worker_id'], session['hit_id'])
+                    if "queue_id" in session:
+                        req = dbfunctions.submit_new_turk(session['worker_id'], session['hit_id'], session['queue_id'])
+                    else:
+                        req = dbfunctions.submit_new_turk(session['worker_id'], session['hit_id'])
                     if 'messages' in req and 'Hit with this Hit id and Turker already exists.' in req['messages']:
                         if 'db_hit_id' not in session \
                             or 'comparison_queue' not in session \
@@ -142,7 +149,7 @@ def render_new_post(rw):
                                    post1caption=post1caption, post1timestamp=post1timestamp, \
                                    post2image = post2image, post2id=post2id, post2likes=post2likes, \
                                    post2caption=post2caption, post2timestamp=post2timestamp, \
-                                   rw = rw, posttype = posttype, compid=compid)
+                                   rw = None, posttype = posttype, compid=compid)
     except Exception, e:
         return traceback.format_exc()
 
