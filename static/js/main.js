@@ -62,7 +62,7 @@
 
     function showImages() {
         function ready() {
-            //startTimer(10);
+            startTimer(10);
             $('.image').fadeIn('slow');
         }
         showBadge();
@@ -88,20 +88,32 @@
 
     function setupPostSubmit() {
         $('.post').click(function() {
-            var id = '#' + $(this).attr('id') + 'form';
-            console.log('id = ', id);
-            $(id).submit();
+            var id = $(this).attr('id');
+            submitPost(id);
         });
     }
 
     function bindArrowKeys() {
         $('body').on('keyup', function(e) {
             if (e.which === 37) { // left
-                $('#post1form').submit();
+                submitPost('post1');
             } else if (e.which === 39) { // right
-                $('#post2form').submit();
+                submitPost('post2');
             }
         });
+    }
+
+    function submitPost(post) {
+        var postId = '#' + post;
+        $(postId).addClass('selected');
+        postId = postId + 'form';
+
+        stopTimer();
+
+        setTimeout(function() {
+            $(postId).submit();
+        }, 10);
+
     }
 
     window.init = function() {

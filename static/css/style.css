@@ -371,6 +371,10 @@ nav {
   left: 18px;
 }
 
+.selected {
+  opacity: 0.8;
+}
+
 [flex] {
   display: flex;
 }
