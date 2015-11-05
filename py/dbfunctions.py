@@ -28,9 +28,7 @@ def submit_new_turk(turk_id, hit_id, queue_id=None):
 		    'turker_id': turk_id,
 		    'hit_id': hit_id
 		}
-	print data
 	req = requests.post(API_URL, data=data)
-	print req.text
 	return req.json()
 
 def get_comparison(comparison_id):
