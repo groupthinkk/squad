@@ -384,17 +384,6 @@ nav {
   position: relative;
 }
 
-.instagram-logo {
-  background-image: url(../img/core-sprites-ad25df.png);
-  background-repeat: no-repeat;
-  background-size: 257px 243px;
-  background-position: 0px -132px;
-  height: 28px;
-  width: 102px;
-  position: absolute;
-  left: 18px;
-}
-
 .selected {
   opacity: 0.8;
 }
