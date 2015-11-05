@@ -137,7 +137,7 @@ def render_new_post(rw):
             compid = comparison_queue[current_comparison]
             posttype = 'oo'
             session['time'] = datetime.now()
-            return render_template("home.html", post1image = post1image, post1id=post1id, post2image = post2image, post2id=post2id, rw = rw, posttype = posttype, compid=compid)
+            return render_template("home.html", post1image = post1image, post1id=post1id, post2image = post2image, post2id=post2id, rw = None, posttype = posttype, compid=compid)
     except:
         return traceback.format_exc()
 
