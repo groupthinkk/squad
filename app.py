@@ -73,7 +73,7 @@ def index():
                         req = dbfunctions.submit_new_turk(session['worker_id'], session['hit_id'], session['queue_id'])
                     else:
                         req = dbfunctions.submit_new_turk(session['worker_id'], session['hit_id'])
-                    if 'messages' in req and 'Hit with this Hit id and Turker already exists.' in req['messages']:
+                    if 'messages' in req and ('Hit with this Hit id and Turker already exists.' in req['messages'] or 'Hit with this Turker and Instagram queue already exists.' in req['messages']):
                         if 'db_hit_id' not in session \
                             or 'comparison_queue' not in session \
                             or 'current_comparison' not in session \
@@ -88,6 +88,7 @@ def index():
                         random.shuffle(session['comparison_queue'])
                         session['current_comparison'] = 0
                         session['correct'] = 0
+                        session['contains_target'] = 0
                 except Exception, e:
                     return traceback.format_exc()
             elif 'posttype' in request.form and request.form['posttype'] == 'oo':
@@ -98,9 +99,12 @@ def index():
                     miliseconds = time.seconds * 1000000 + time.microseconds
                     worker_id = session['worker_id']
                     db_hit_id = session['db_hit_id']
-                    ret = dbfunctions.record_comparison(db_hit_id, comp_id, chosen_post_id, miliseconds, "v0")
+                    ret = dbfunctions.record_comparison(db_hit_id, comp_id, chosen_post_id, miliseconds, "v1")
                     if 'messages' not in ret or 'Instagram prediction with this Hit and Comparison already exists.' not in ret['messages']:
-                        if ret["correct"]:
+                        if ret["contains_target"]:
+                            rw = "correct"
+                            session['contains_target'] += 1
+                        elif ret["correct"]:
                             rw = "correct"
                             session['correct'] += 1
                         else:
@@ -125,7 +129,7 @@ def render_new_post(rw):
             worker_id = session['worker_id']
             hit_id = session['hit_id']
             amazon_host = session['amazon_host']
-            rater_percentage = round(session['correct'] * 100.0 / len(comparison_queue), 1)
+            rater_percentage = round(session['correct'] * 100.0 / (len(comparison_queue) - session['contains_target']), 1)
             return render_template("ending.html", assignment_id=assignment_id, worker_id=worker_id, hit_id=hit_id, rater_percentage=rater_percentage, amazon_host=amazon_host)
         else: 
             res = dbfunctions.get_comparison(comparison_queue[current_comparison])
