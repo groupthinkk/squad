@@ -25,13 +25,13 @@ def add_username(username):
 def get_posts_from_user_id(user_id, num_times=1):
     media_list, next_ = api.user_recent_media(user_id=user_id, count=40)
     i = 0
-    while next_ and datetime.datetime.now() - media_list[-1].created_time < datetime.timedelta(days=14):
+    while next_ and datetime.datetime.now() - media_list[-1].created_time < datetime.timedelta(days=365):
        more_media, next_ = api.user_recent_media(user_id=user_id, count=40, with_next_url=next_)
        media_list.extend(more_media)
        i += 1
     ret_list = []
     for media in media_list:
-        if media.type != 'video' and datetime.datetime.now() - media.created_time <= datetime.timedelta(days=14):
+        if media.type != 'video' and datetime.datetime.now() - media.created_time <= datetime.timedelta(days=365):
             ret_list.append([media.user.username, media.created_time, media.id, media.like_count, media.comment_count, media.images['standard_resolution'].url])
     return ret_list
 
@@ -50,15 +50,14 @@ if __name__ == '__main__':
     csv_file = csv.reader(f)
     data_list = []
     for row in csv_file:
-        #print row
-        user_id = row[1]
-        if not user_id.isdigit():
-            continue
+        print row
+        user_id = row[0]
         try:
-            data_list.extend(get_posts_from_user_id(user_id))
-            print row[0]
+            data_list.extend(get_posts_from_user_id(add_username(user_id)))
         except InstagramAPIError as e:
-           if (e.status_code == 400):
-              print "%s is set to private" % (row[0])
+            if (e.status_code == 400):
+                print "%s is set to private" % (row[0])
+            if e.status_code == 404:
+                print "Status code 404"
     f.close()
     make_csv(data_list)
