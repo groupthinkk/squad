@@ -8,6 +8,7 @@ import random
 import logging
 import traceback
 from threading import Lock
+from pymongo import MongoClient
 
 from hashlib import sha512
 
@@ -22,7 +23,11 @@ env.line_statement_prefix = '='
 basic_auth = BasicAuth(app)
 
 lock = Lock()
-queue_num = 2752
+
+client = MongoClient("ds037713-a0.mongolab.com", 37713)
+db = client["turksquad"]
+db.authenticate("sweyn", "sweynsquad")
+#queue_num = 2752
 
 @app.route("/bigbonus", methods = ["GET"])
 def big_bonus():
@@ -48,7 +53,6 @@ def big_bonus():
 
 @app.route("/", methods = ["GET", "POST"])
 def index():
-    global queue_num
     if request.method == "GET":
         try:
             if request.args.get("assignmentId") == "ASSIGNMENT_ID_NOT_AVAILABLE":
@@ -77,10 +81,9 @@ def index():
                     if "queue_id" in session:
                         if session['queue_id'] == '0':
                             with lock:
-                                queue_for_me = queue_num
-                                queue_num += 1
+                                queue_for_me = db.queue_num.find_one()['queue_num']
+                                db.queue_num.update({'queue_num':queue_for_me}, {'$inc':{'queue_num':1}})
                             req = dbfunctions.submit_new_turk(session['worker_id'], session['hit_id'], str(queue_for_me))
-                            print queue_num
                         else:
                             req = dbfunctions.submit_new_turk(session['worker_id'], session['hit_id'], session['queue_id'])
                     else:
