@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 import random
 import logging
 import traceback
+from threading import Lock
 
 from hashlib import sha512
 
@@ -19,6 +20,9 @@ env = app.jinja_env
 env.line_statement_prefix = '='
 
 basic_auth = BasicAuth(app)
+
+lock = Lock()
+queue_num = 2752
 
 @app.route("/bigbonus", methods = ["GET"])
 def big_bonus():
@@ -44,6 +48,7 @@ def big_bonus():
 
 @app.route("/", methods = ["GET", "POST"])
 def index():
+    global queue_num
     if request.method == "GET":
         try:
             if request.args.get("assignmentId") == "ASSIGNMENT_ID_NOT_AVAILABLE":
@@ -70,7 +75,14 @@ def index():
             if "start" in request.form:
                 try:
                     if "queue_id" in session:
-                        req = dbfunctions.submit_new_turk(session['worker_id'], session['hit_id'], session['queue_id'])
+                        if session['queue_id'] == '0':
+                            with lock:
+                                queue_for_me = queue_num
+                                queue_num += 1
+                            req = dbfunctions.submit_new_turk(session['worker_id'], session['hit_id'], str(queue_for_me))
+                            print queue_num
+                        else:
+                            req = dbfunctions.submit_new_turk(session['worker_id'], session['hit_id'], session['queue_id'])
                     else:
                         req = dbfunctions.submit_new_turk(session['worker_id'], session['hit_id'])
                     if 'messages' in req and ('Hit with this Hit id and Turker already exists.' in req['messages'] or 'Hit with this Turker and Instagram queue already exists.' in req['messages']):
