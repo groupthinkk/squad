@@ -93,7 +93,10 @@ def register():
         return render_template("register.html", message="Email already registered")
     elif password == password2:
         db['users'].insert({"email": email, "pw_hash": bcrypt.generate_password_hash(password), "phone_number": phone_number, "ig_handle": ig_handle})
-        twilio_client.messages.create(to=phone_number, from_="+19292947687", body="Thank you for registering! We'll be in touch with your first challenge soon. Reply STOP at any time to opt out.")
+        try:
+            twilio_client.messages.create(to=phone_number, from_="+19292947687", body="Thank you for registering! We'll be in touch with your first challenge soon. Reply STOP at any time to opt out.")
+        except:
+            pass
         user = User(email, phone_number)
         login_user(user, remember=True)
         return redirect(url_for('index'))
