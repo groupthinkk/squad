@@ -36,7 +36,7 @@ db.authenticate("sweyn", "sweynsquad")
 
 account_sid = "AC92676a683900b40e7ba19d1b9a78a5ef"
 auth_token = "4de6b64136ddfcf839562af528f9304e"
-client = TwilioRestClient(account_sid, auth_token)
+twilio_client = TwilioRestClient(account_sid, auth_token)
 
 class User(UserMixin):
 
@@ -93,7 +93,7 @@ def register():
         return render_template("register.html", message="Email already registered")
     elif password == password2:
         db['users'].insert({"email": email, "pw_hash": bcrypt.generate_password_hash(password), "phone_number": phone_number, "ig_handle": ig_handle})
-        client.messages.create(to=phone_number, from_="+19292947687", body="Thank you for registering! We'll be in touch with your first challenge soon. Reply STOP at any time to opt out.")
+        twilio_client.messages.create(to=phone_number, from_="+19292947687", body="Thank you for registering! We'll be in touch with your first challenge soon. Reply STOP at any time to opt out.")
         user = User(email, phone_number)
         login_user(user, remember=True)
         return redirect(url_for('index'))
