@@ -14,20 +14,17 @@
     <meta name="viewport" content="initial-scale=1, maximum-scale=1">
 </head>
 <body class="end">
-        <header>
-            <img src="../static/img/squad-logo.png" class="logo" alt="squad logo">
-        </header>
-        <div class="main">
-            <h1>Good job!</h1>
+    <div class="main">
+        <h1>Good job!</h1>
 
-            <div class="chart-container">
-                <div class="chart" data-percent="{{ rater_percentage }}" data-scale-color="#beb08d">{{ rater_percentage }}%</div>
-            </div>
-
-            <p>
-                <b>Congratulations, you've finished the hit with {{ rater_percentage }}% accuracy.</b>
-            </p>
+        <div class="chart-container">
+            <div class="chart" data-percent="{{ rater_percentage }}" data-scale-color="#beb08d">{{ rater_percentage }}%</div>
         </div>
+
+        <p>
+            <b>Congratulations, you've finished the challenge with {{ rater_percentage }}% accuracy.</b>
+        </p>
+    </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
 
 <script>
