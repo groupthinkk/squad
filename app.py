@@ -1,15 +1,16 @@
 from flask import Flask
 from flask import render_template, url_for, redirect
-from flask import request, session
+from flask import request, session, flash
+from urlparse import urlparse, urljoin
 from py import *
 from flask.ext.basicauth import BasicAuth
 from datetime import datetime, timedelta
 import random
 import logging
 import traceback
-from threading import Lock
 from pymongo import MongoClient
-
+from flask.ext.login import LoginManager, UserMixin, login_required, login_user, logout_user
+from flask.ext.bcrypt import Bcrypt
 from hashlib import sha512
 
 app = Flask(__name__)
@@ -22,81 +23,119 @@ env.line_statement_prefix = '='
 
 basic_auth = BasicAuth(app)
 
-lock = Lock()
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+bcrypt = Bcrypt(app)
 
 client = MongoClient("ds037713-a0.mongolab.com", 37713)
 db = client["turksquad"]
 db.authenticate("sweyn", "sweynsquad")
-#queue_num = 2752
 
-@app.route("/bigbonus", methods = ["GET"])
-def big_bonus():
-    try:
-        if request.args.get("assignmentId") == "ASSIGNMENT_ID_NOT_AVAILABLE":
-            return "You haven't accepted the HIT yet"
-        try:
-            if not (("worker_id" in session and session['worker_id'] == request.args.get("workerId")) \
-                and ("assignment_id" in session and session['assignment_id'] == request.args.get("assignmentId")) \
-                and ("hit_id" in session and session['hit_id'] == request.args.get("hitId"))):
-                    session.clear()
-                    session["worker_id"] = request.args.get("workerId")
-                    session["assignment_id"] =  request.args.get("assignmentId")
-                    session["amazon_host"] = request.args.get("turkSubmitTo") + "/mturk/externalSubmit"
-                    session["hit_id"] = request.args.get("hitId")
-                    if "queueId" in request.form:
-                        session["queue_id"] = request.args.get("queueId")
-        except:
-            return "Initial request was malformed"
-        return render_template("big_bonus_landing.html")
-    except:
-        return traceback.format_exc()
+class User(UserMixin):
 
-@app.route("/", methods = ["GET", "POST"])
+    def __init__(self, username, phone_number):
+        self.id = username
+        self.phone_number = phone_number
+
+@login_manager.user_loader
+def load_user(username):
+    user_entry = db['users'].find_one({'email':username})
+    if user_entry == None:
+        return None
+    user = User(username, user_entry['phone_number'])
+    return user
+
+def is_safe_url(target):
+    ref_url = urlparse(request.host_url)
+    test_url = urlparse(urljoin(request.host_url, target))
+    return test_url.scheme in ('http', 'https') and \
+           ref_url.netloc == test_url.netloc
+
+def get_redirect_target():
+    for target in request.values.get('next'), request.referrer:
+        if not target:
+            continue
+        if is_safe_url(target):
+            return target
+
+def redirect_back(endpoint, **values):
+    target = request.form['next']
+    if not target or not is_safe_url(target):
+        target = url_for(endpoint, **values)
+    return redirect(target)
+
+@app.route("/", methods = ["GET"])
+@login_required
 def index():
+    return render_template("index.html")
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
     if request.method == "GET":
-        try:
-            if request.args.get("assignmentId") == "ASSIGNMENT_ID_NOT_AVAILABLE":
-                return "You haven't accepted the HIT yet"
-            try:
-                if not (("worker_id" in session and session['worker_id'] == request.args.get("workerId")) \
-                    and ("assignment_id" in session and session['assignment_id'] == request.args.get("assignmentId")) \
-                    and ("hit_id" in session and session['hit_id'] == request.args.get("hitId"))):
-                        session.clear()
-                        session["worker_id"] = request.args.get("workerId")
-                        session["assignment_id"] =  request.args.get("assignmentId")
-                        session["amazon_host"] = request.args.get("turkSubmitTo") + "/mturk/externalSubmit"
-                        session["hit_id"] = request.args.get("hitId")
-                        if "queueId" in request.args:
-                            session["queue_id"] = request.args.get("queueId")
-            except:
-                return "Initial request was malformed"
-            return render_template("landing.html")
-        except:
-            return traceback.format_exc()
+        return render_template("register.html")
+    email = request.form["email"]
+    password = request.form["password"]
+    password2 = request.form["password2"]
+    phone_number = request.form['phone_number'].replace('-', '').replace('(', '').replace(')', '')
+    ig_handle = request.form['ig_handle']
+    reg_code = request.form['reg_code']
+    if db['reg_codes'].find_one({'reg_code':reg_code}) == None:
+        return render_template("register.html", message="Registration code is not valid")
+    result = db['users'].find_one({"email": email})
+    if result is not None:
+        return render_template("register.html", message="Email already registered")
+    elif password == password2:
+        db['users'].insert({"email": email, "pw_hash": bcrypt.generate_password_hash(password), "phone_number": phone_number, "ig_handle": ig_handle})
+        user = User(email, phone_number)
+        login_user(user, remember=True)
+        return redirect(url_for('index'))
+    else:
+        return render_template("register.html", message="Passwords don't match")
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    next = get_redirect_target()
+    if request.method == 'GET':
+        return render_template("login.html", next=next)
+    email = request.form['email']
+    user_entry = db['users'].find_one({'email':email})
+    if user_entry != None and bcrypt.check_password_hash(user_entry['pw_hash'], request.form['password']):
+        user = User(email, user_entry['phone_number'])
+        login_user(user, remember=True)
+        flash('Logged in successfully.')
+        print 'logged in'
+        return redirect_back('index')
+    return render_template('login.html', message="Incorrect username and password")
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+@app.route("/q/<int:queue_id>", methods = ["GET", "POST"])
+@login_required
+def queue_doer(queue_id):
+    email = "test"
+    if request.method == "GET":
+        session["queue_id"] = queue_id
+        return render_template("landing.html")
     else:
         try:
             rw = None
             if "start" in request.form:
                 try:
-                    if "queue_id" in session:
-                        if session['queue_id'] == '0':
-                            with lock:
-                                queue_for_me = db.queue_num.find_one()['queue_num']
-                                db.queue_num.update({'queue_num':queue_for_me}, {'$inc':{'queue_num':1}})
-                            req = dbfunctions.submit_new_turk(session['worker_id'], session['hit_id'], str(queue_for_me))
-                        else:
-                            req = dbfunctions.submit_new_turk(session['worker_id'], session['hit_id'], session['queue_id'])
-                    else:
-                        req = dbfunctions.submit_new_turk(session['worker_id'], session['hit_id'])
+                    req = dbfunctions.submit_new_turk(email, email + str(session['queue_id']), session['queue_id'])
                     if 'messages' in req and ('Hit with this Hit id and Turker already exists.' in req['messages'] or 'Hit with this Turker and Instagram queue already exists.' in req['messages']):
-                        if 'db_hit_id' not in session \
-                            or 'comparison_queue' not in session \
-                            or 'current_comparison' not in session \
-                            or 'correct' not in session:
-                            return """You already started this HIT and then tried to restart with an expired session. Please return this HIT.
-                                    Contact the administrator if you think there has been a mistake."""
-                    elif 'messages' in req and 'No more queues available for turker_id:' in req['messages']:
-                        return "We have no more queues for you. You've done too many HITs of ours for now. Please return this HIT. You're awesome!"
+                        if 'queue_id' not in session or \
+                                'db_hit_id' not in session or \
+                                'comparison_queue' not in session or \
+                                'current_comparison' not in session or \
+                                'correct' not in session or \
+                                'contains_target' not in session:
+                            return """You already started this queue and navigated away."""
                     else:
                         session['db_hit_id'] = req['id']
                         session['comparison_queue'] = req['instagram_queue']['comparisons']
@@ -112,7 +151,6 @@ def index():
                     comp_id = request.form['compid']
                     chosen_post_id = request.form['postid']
                     miliseconds = time.seconds * 1000000 + time.microseconds
-                    worker_id = session['worker_id']
                     db_hit_id = session['db_hit_id']
                     ret = dbfunctions.record_comparison(db_hit_id, comp_id, chosen_post_id, miliseconds, "v1")
                     if 'messages' not in ret or 'Instagram prediction with this Hit and Comparison already exists.' not in ret['messages']:
@@ -135,17 +173,11 @@ def index():
 
 def render_new_post(rw):
     try:
-        worker_id = session['worker_id']
-        hit_id = session['hit_id']
         current_comparison = session['current_comparison']
         comparison_queue = session['comparison_queue']
         if current_comparison >= len(comparison_queue):
-            assignment_id = session['assignment_id']
-            worker_id = session['worker_id']
-            hit_id = session['hit_id']
-            amazon_host = session['amazon_host']
             rater_percentage = round(session['correct'] * 100.0 / (len(comparison_queue) - session['contains_target']), 1)
-            return render_template("ending.html", assignment_id=assignment_id, worker_id=worker_id, hit_id=hit_id, rater_percentage=rater_percentage, amazon_host=amazon_host)
+            return render_template("ending.html", rater_percentage=rater_percentage)
         else: 
             res = dbfunctions.get_comparison(comparison_queue[current_comparison])
             username = res['user']['username']

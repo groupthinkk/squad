@@ -1,0 +1,101 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<link href='https://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+	<title>Groupthink</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="static/css/style.css" type="text/css" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<body>
+    <div class="container">
+        = if rw is defined and rw == "correct"
+        <div class="badger correct">Correct!</div>
+        = endif
+        = if rw is defined and rw == "wrong"
+        <div class="badger wrong">Nope</div>
+        = endif
+        = if rw is defined and rw == "back"
+        <div class="badger wrong">Don't press back!</div>
+        = endif
+    </div>
+
+	<nav>
+		<div class="nav-main">
+			<div class="container">
+				<div class="row">
+					<div class="col-xs-12 nav-inner">
+						<h2 class="title">Which post do you think got most likes?</h2>
+					</div>
+				</div>
+			</div>
+		</div>
+	</nav>
+	<div class="container">
+		<div class="row">
+			<div class="col-xs-12">
+
+			</div>
+		</div>
+		<div class="row images">
+			<form method='post' id="post1form">
+				<input type=hidden id="posttype1" name="posttype" value="{{posttype}}">
+				<input type=hidden name="compid" value="{{compid}}">
+				<input type=hidden name="postid" value="{{post1id}}">
+				<div class="col-xs-5">
+					<article class="post" id="post1">
+                        <header class="post-header">
+                            <img class="user-avatar" src="{{ profile }}">
+                            <div class="user-name">{{ username }}</div>
+                            <div class="timestamp" id="timestamp1"></div>
+                        </header>
+                        <div class="post-image">
+                            <div class="post-image-holder">
+                                <img src="{{post1image}}" class="image">
+                            </div>
+                        </div>
+                        <div class="post-info">
+                            <div class="caption"><span class="user-name">{{ username }}</span> {{post1caption}}</div>
+                        </div>
+                    </article>
+				</div>
+			</form>
+
+			<div class="col-xs-2 versus">
+				<span class="text">vs</span>
+				<div id="timer"></div>
+			</div>
+			<form method='post' id="post2form">
+				<input type=hidden name="posttype" value="{{posttype}}">
+				<input type=hidden name="compid" value="{{compid}}">
+				<input type=hidden name="postid" value="{{post2id}}">
+				<div class="col-xs-5">
+					<article class="post" id="post2">
+                        <header class="post-header">
+                            <img class="user-avatar" src="{{ profile }}">
+                            <div class="user-name">{{ username }}</div>
+                            <div class="timestamp" id="timestamp2"></div>
+                        </header>
+                        <div class="post-image">
+                            <div class="post-image-holder">
+                                <img src="{{post2image}}" class="image">
+                            </div>
+                        </div>
+                        <div class="post-info">
+                            <div class="caption"><span class="user-name">{{ username }}</span> {{post2caption}}</div>
+                        </div>
+                    </article>
+				</div>
+			</form>
+		</div>
+	</div>
+    <script>
+        var post1timestamp = "{{ post1timestamp }}";
+        var post2timestamp = "{{ post2timestamp }}";
+    </script>
+    <script type="text/javascript" src="static/js/moment.js"></script>
+	<script type="text/javascript" src="static/js/main.js"></script>
+</body>
+</html>

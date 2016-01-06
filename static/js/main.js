@@ -34,35 +34,44 @@
     }
 
     var timer;
-    function startTimer(seconds) {
-        timer&&clearTimeout(timer);
-        var timerStart = new Date();
-        var timerStop = new Date();
-        timerStop.setSeconds(timerStop.getSeconds() + seconds); // js properly handles wrapping of time 11:55 +10s -> 12:05
-        var $timer = $('#timer').show();
 
-        timer = setInterval(function () {
-            var now = new Date();
-            if (now > timerStop) {
-                stopTimer();
+    function setupStopwatch() {
+        timer = $("#timer").TimeCircles({
+            "animation": "smooth",
+            "bg_width": 1,
+            "fg_width": 0.13333333333333333,
+            "circle_bg_color": "#EEEEEE",
+            "total_duration": 10,
+            "time": {
+                "Days": {
+                    "show": false
+                },
+                "Hours": {
+                    "show": false
+                },
+                "Minutes": {
+                    "show": false
+                },
+                "Seconds": {
+                    //"text": "Seconds",
+                    //"color": "#CCCCCC",
+                    "show": true
+                }
+            }
+        }).addListener(function(unit, value, total) {
+            if (value === 0) {
+                console.log(value);
                 timerExpired();
             }
+        });
 
-            var x = timerStop - now;
-            var w = x / (timerStop - timerStart);
-            
-            $timer.width((w * 100) + '%');
-        }, 100);
-    }
-
-    function stopTimer() {
-        clearTimeout(timer);
-        $('#timer').hide();
+        //timer.stop();
+        console.log(timer);
     }
 
     function showImages() {
         function ready() {
-            startTimer(10);
+            setupStopwatch();
             $('.image').fadeIn('slow');
         }
         showBadge();
@@ -86,10 +95,29 @@
         $('#timestamp2').text(timestamp2);
     }
 
-    function setupPostSubmit() {
-        $('.post').click(function() {
+    function highlightPost(post) {
+        post.addClass('selected');
+        setTimeout(function() {
+            post.removeClass('selected');
+        }, 200);
+    }
+
+    function setupTouchDetect() {
+        var post = $('.post').singletap(function() {
+            //$("#timer").TimeCircles().destroy();
+            //highlightPost($(this));
+            //updateScore($(this));
+            //showNextPost();
+            //setupStopwatch();
+        }).doubletap(function() {
+            $("#timer").TimeCircles().destroy();
+            highlightPost($(this));
             var id = $(this).attr('id');
             submitPost(id);
+        });
+
+        post.tapend(function(e, touch) {
+            e.preventDefault();
         });
     }
 
@@ -108,8 +136,6 @@
         $(postId).addClass('selected');
         postId = postId + 'form';
 
-        stopTimer();
-
         setTimeout(function() {
             $(postId).submit();
         }, 10);
@@ -117,10 +143,13 @@
     }
 
     window.init = function() {
+        var $container = $('.viewport');
+        var scrollTo = $container.offset().left + $container.width() / 2;
         showTimestamps();
         showImages();
-        setupPostSubmit();
+        setupTouchDetect();
         bindArrowKeys();
+        $container.scrollLeft(scrollTo);
     };
 
     // this is all testing only

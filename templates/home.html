@@ -1,101 +1,129 @@
-﻿<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-	<link href='https://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
-	<title>Groupthink</title>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet">
-	<link rel="stylesheet" href="static/css/style.css" type="text/css" />
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="UTF-8">
+    <title>Squad Friends & Family</title>
+    <script src="https://use.typekit.net/mof3zmb.js"></script>
+    <script>try{Typekit.load({ async: true });}catch(e){}</script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css" integrity="sha384-aUGj/X2zp5rLCbBxumKTCw2Z50WgIr1vs/PFN4praOTvYXWlVyh2UtNUU0KAUhAX" crossorigin="anonymous">
+    <link rel="stylesheet" href="static/css/TimeCircles.css">
+    <link rel="stylesheet" href="static/css/main.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
 </head>
 <body>
-    <div class="container">
-        = if rw is defined and rw == "correct"
-        <div class="badger correct">Correct!</div>
-        = endif
-        = if rw is defined and rw == "wrong"
-        <div class="badger wrong">Nope</div>
-        = endif
-        = if rw is defined and rw == "back"
-        <div class="badger wrong">Don't press back!</div>
-        = endif
-    </div>
+    <header class="title">
+        <link href='https://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+        <h2>Which post do you think got more people to click "Like"? <br>Just Double Tap It</h2>
+    </header>
+    <div class="viewport">
+        <div class="wrapper">
 
-	<nav>
-		<div class="nav-main">
-			<div class="container">
-				<div class="row">
-					<div class="col-xs-12 nav-inner">
-						<h2 class="title">Which post do you think got most likes?</h2>
-					</div>
-				</div>
-			</div>
-		</div>
-	</nav>
-	<div class="container">
-		<div class="row">
-			<div class="col-xs-12">
-
-			</div>
-		</div>
-		<div class="row images">
-			<form method='post' id="post1form">
-				<input type=hidden id="posttype1" name="posttype" value="{{posttype}}">
-				<input type=hidden name="compid" value="{{compid}}">
-				<input type=hidden name="postid" value="{{post1id}}">
-				<div class="col-xs-5">
-					<article class="post" id="post1">
+            <div class="main">
+                <form method='post' id="post1form">
+                    <input type=hidden id="posttype1" name="posttype" value="{{posttype}}">
+                    <input type=hidden name="compid" value="{{compid}}">
+                    <input type=hidden name="postid" value="{{post1id}}">
+                    <article class="left post" id="post1">
                         <header class="post-header">
-                            <img class="user-avatar" src="{{ profile }}">
-                            <div class="user-name">{{ username }}</div>
+                            <img class="user-avatar" src="{{profile}}">
+                            <div class="user-name">{{username}}</div>
                             <div class="timestamp" id="timestamp1"></div>
                         </header>
                         <div class="post-image">
                             <div class="post-image-holder">
-                                <img src="{{post1image}}" class="image">
+                                <img src="{{post1image}}" class="image image0">
                             </div>
                         </div>
                         <div class="post-info">
-                            <div class="caption"><span class="user-name">{{ username }}</span> {{post1caption}}</div>
+                            <div class="caption-outer"><span class="username">{{username}}</span> <span class="caption caption0">{{post1caption}}</span></div>
                         </div>
                     </article>
-				</div>
-			</form>
+                </form>
+                <section class="middle timer" id="timer">
 
-			<div class="col-xs-2 versus">
-				<span class="text">vs</span>
-				<div id="timer"></div>
-			</div>
-			<form method='post' id="post2form">
-				<input type=hidden name="posttype" value="{{posttype}}">
-				<input type=hidden name="compid" value="{{compid}}">
-				<input type=hidden name="postid" value="{{post2id}}">
-				<div class="col-xs-5">
-					<article class="post" id="post2">
+                </section>
+                <form method='post' id="post2form">
+                    <article class="right post" id="post2">
+                        <input type=hidden name="posttype" value="{{posttype}}">
+                        <input type=hidden name="compid" value="{{compid}}">
+                        <input type=hidden name="postid" value="{{post2id}}">
                         <header class="post-header">
-                            <img class="user-avatar" src="{{ profile }}">
-                            <div class="user-name">{{ username }}</div>
+                            <img class="user-avatar" src="{{profile}}">
+                            <div class="user-name">{{username}}</div>
                             <div class="timestamp" id="timestamp2"></div>
                         </header>
                         <div class="post-image">
                             <div class="post-image-holder">
-                                <img src="{{post2image}}" class="image">
+                                <img src="{{post2image}}" class="image image1">
                             </div>
                         </div>
                         <div class="post-info">
-                            <div class="caption"><span class="user-name">{{ username }}</span> {{post2caption}}</div>
+                            <div class="caption-outer"><span class="user-name">{{username}}</span> <span class="caption caption1">{{post2caption}}</span></div>
                         </div>
                     </article>
-				</div>
-			</form>
-		</div>
-	</div>
+                </form>
+            </div>
+            <div class="dashboard" id="dashboard" style="display:none;">
+                <header>
+                    <img src="static/img/squad-logo.png" class="logo" alt="squad logo">
+                    <img src="static/img/got-social-skills.png" class="tagline" alt="got social skills">
+                </header>
+                <div class="flex-landscape-only">
+                    <div class="landscape-left">
+                        <div class="shaded-box accuracy">
+                            <header>
+                                <h2 class="boxed">Accuracy</h2>
+                            </header>
+                            <div class="content boxed"><span class="figure" id="accuracy"></span><span class="superscript">%</span></div>
+                        </div>
+                        <div class="two-across">
+                            <div class="shaded-box">
+                                <header>
+                                    <h2 class="boxed">Right Answers</h2>
+                                </header>
+                                <div class="content boxed"><span class="figure" id="right"></span></div>
+                            </div>
+                            <div class="shaded-box">
+                                <header>
+                                    <h2 class="boxed">Wrong Answers</h2>
+                                </header>
+                                <div class="content boxed"><span class="figure" id="wrong"></span></div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="shaded-box chart">
+                        <header>
+                            <h2 class="boxed">Your last 10 results</h2>
+                        </header>
+                        <div class="content boxed">
+                            <div class="chart-container">
+                                <img src="static/img/fakechart-2.svg" alt="fake chart">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <h2 class="see-you-soon">See you soon for the next round!</h2>
+
+            </div>
+            <div class="expired" id="expired" style="display:none;">
+                <h2>Time's up!</h2>
+            </div>
+        </div>
+    </div>
     <script>
         var post1timestamp = "{{ post1timestamp }}";
         var post2timestamp = "{{ post2timestamp }}";
     </script>
-    <script type="text/javascript" src="static/js/moment.js"></script>
-	<script type="text/javascript" src="static/js/main.js"></script>
+    <script src="static/js/TimeCircles.js"></script>
+    <script src="static/js/jquery.mobile-events.min.js"></script>
+    <script src="static/js/moment.js"></script>
+    <script src="static/js/main.js"></script>
 </body>
 </html>
