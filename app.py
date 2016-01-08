@@ -93,7 +93,7 @@ def register():
     if result is not None:
         return render_template("register.html", message="Email already registered")
     elif password == password2:
-        db['users'].insert({"email": email, "name": name, "pw_hash": bcrypt.generate_password_hash(password), "phone_number": phone_number, "ig_handle": ig_handle})
+        db['users'].insert({"email": email, "name": name, "score": 0, "pw_hash": bcrypt.generate_password_hash(password), "phone_number": phone_number, "ig_handle": ig_handle})
         try:
             twilio_client.messages.create(to=phone_number, from_="+19292947687", body="Thank you for registering! We'll be in touch with your first challenge soon. Reply STOP at any time to opt out.")
         except:
@@ -187,7 +187,8 @@ def render_new_post(rw):
         comparison_queue = session['comparison_queue']
         if current_comparison >= len(comparison_queue):
             rater_percentage = round(session['correct'] * 100.0 / (len(comparison_queue) - session['contains_target']), 1)
-            return render_template("ending.html", rater_percentage=rater_percentage)
+            leaderboard_users = [{'rank': 1, 'name':"Sweyn", 'score':0, 'current_user':True}, {'rank':2, 'name':"Sweyn2", 'score': 0, 'current_user':False}]
+            return render_template("ending.html", rater_percentage=rater_percentage, leaderboard_users=leaderboard_users)
         else: 
             res = dbfunctions.get_comparison(comparison_queue[current_comparison])
             username = res['user']['username']

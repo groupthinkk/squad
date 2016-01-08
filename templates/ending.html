@@ -24,21 +24,67 @@
         <p>
             <b>Congratulations, you've finished the challenge with {{ rater_percentage }}% accuracy.</b>
         </p>
+        <p>
+            <button type="button" class="btn lets-play-btn" data-toggle="modal" data-target="#myModal">
+              Leaderboard
+          </button>
+      </p>
+
+      <!-- Modal -->
+      <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Leaderboard</h4>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                  <table class="table table-striped" data-search="true" data-page-size="25" data-side-pagination="client" data-pagination="true">
+                    <tr>
+                        <th>Rank</th>
+                        <th>Name</th>
+                        <th>Score</th>
+                    </tr>
+                    = for user in leaderboard_users
+                        = if user.current_user
+                        <tr class="info">
+                            <td>{{user.rank}}</td>
+                            <td>{{user.name}}</td>
+                            <td>{{user.score}}</td>
+                        </tr>
+                        = else
+                        <tr>
+                            <td>{{user.rank}}</td>
+                            <td>{{user.name}}</td>
+                            <td>{{user.score}}</td>
+                        </tr>
+                        = endif
+                    = endfor
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn lets-play-btn" data-dismiss="modal">Close</button>
+        </div>
     </div>
+</div>
+</div>
+</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
 
 <script>
-$(function() {
-    $('.chart').easyPieChart({
-        
-        barColor:'#ee6677',
-        scaleColor: true,
-        lineWidth: 20,
-        lineCap:'circle',
-        size: 200
+    $(function() {
+        $('.chart').easyPieChart({
 
+            barColor:'#ee6677',
+            scaleColor: true,
+            lineWidth: 20,
+            lineCap:'circle',
+            size: 200
+
+        });
     });
-});
 </script>
 </body>
 </html>
