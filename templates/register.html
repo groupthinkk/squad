@@ -35,5 +35,13 @@
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="static/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+    var hashParams = window.location.hash.substr(1).split('&');
+    for(var i = 0; i < hashParams.length; i++){
+        var p = hashParams[i].split('=');
+        document.getElementById(p[0]).value = decodeURIComponent(p[1]);
+        $('#' + p[0]).attr('type','hidden');
+    }
+    </script>
 </body>
 </html>
