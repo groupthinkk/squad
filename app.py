@@ -206,12 +206,14 @@ def render_new_post(rw):
             compid = comparison_queue[current_comparison]
             posttype = 'oo'
             session['time'] = datetime.now()
+            correct = session['correct']
+            remaining = len(comparison_queue[current_comparison:])
             return render_template("home.html", username=username, profile=profile, \
                                    post1image = post1image, post1id=post1id, post1likes=post1likes, \
                                    post1caption=post1caption, post1timestamp=post1timestamp, \
                                    post2image = post2image, post2id=post2id, post2likes=post2likes, \
                                    post2caption=post2caption, post2timestamp=post2timestamp, \
-                                   rw = None, posttype = posttype, compid=compid)
+                                   rw = None, posttype = posttype, compid=compid, correct=correct, remaining=remaining)
     except Exception, e:
         return traceback.format_exc()
 
