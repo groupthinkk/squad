@@ -18,7 +18,7 @@
         <h1>Good job!</h1>
 
         <div class="chart-container">
-            <div class="chart" data-percent="{{ rater_percentage }}" data-scale-color="#beb08d">{{ rater_percentage }}%</div>
+            <div class="chart" data-percent="{{ rater_percentage }}" data-scale-color="#beb08d">{{ num_right }}</div>
         </div>
 
         <p>
@@ -47,11 +47,17 @@
                         <th>Score</th>
                     </tr>
                     = for user in leaderboard_users
-                        = if user.current_user
+                        = if user.current_user == "you"
                         <tr class="info">
                             <td>{{user.rank}}</td>
                             <td>{{user.name}}</td>
                             <td>{{user.score}}</td>
+                        </tr>
+                        = elif user.current_user == "break"
+                        <tr>
+                            <td>⋮</td>
+                            <td></td>
+                            <td></td>
                         </tr>
                         = else
                         <tr>
@@ -61,16 +67,6 @@
                         </tr>
                         = endif
                     = endfor
-                    <tr>
-                            <td>⋮</td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>123</td>
-                            <td>Sweyn After</td>
-                            <td>1</td>
-                        </tr>
                 </table>
             </div>
         </div>

@@ -9,7 +9,7 @@ import random
 import logging
 import traceback
 from pymongo import MongoClient
-from flask.ext.login import LoginManager, UserMixin, login_required, login_user, logout_user
+from flask.ext.login import LoginManager, UserMixin, login_required, login_user, logout_user, current_user
 from flask.ext.bcrypt import Bcrypt
 from hashlib import sha512
 from twilio.rest import TwilioRestClient
@@ -156,6 +156,7 @@ def queue_doer(queue_id):
                 except Exception, e:
                     return traceback.format_exc()
             elif 'posttype' in request.form and request.form['posttype'] == 'oo':
+                print "hi", db['users'].find_one({'email':current_user.id})
                 try:
                     time = datetime.now() - session['time']
                     comp_id = request.form['compid']
@@ -167,6 +168,7 @@ def queue_doer(queue_id):
                         if ret["contains_target"]:
                             rw = "correct"
                             session['contains_target'] += 1
+                            session['correct'] += 1
                         elif ret["correct"]:
                             rw = "correct"
                             session['correct'] += 1
@@ -177,6 +179,19 @@ def queue_doer(queue_id):
                 session['current_comparison'] += 1
             else:
                 session['current_comparison'] += 1
+            current_comparison = session['current_comparison']
+            comparison_queue = session['comparison_queue']
+            if current_comparison >= len(comparison_queue):
+                correct = session['correct']
+                add_score = 0
+                if correct > 15:
+                    add_score = 1
+                elif correct > 17:
+                    add_score = 3
+                elif correct > 20:
+                    add_score = 5
+                if add_score > 0:
+                    db['users'].update({'email':current_user.id}, {'$inc':{'score': add_score}})
             return render_new_post(rw)
         except:
             return traceback.format_exc()
@@ -186,9 +201,28 @@ def render_new_post(rw):
         current_comparison = session['current_comparison']
         comparison_queue = session['comparison_queue']
         if current_comparison >= len(comparison_queue):
-            rater_percentage = round(session['correct'] * 100.0 / (len(comparison_queue) - session['contains_target']), 1)
-            leaderboard_users = [{'rank': 1, 'name':"Sweyn", 'score':0, 'current_user':True}, {'rank':2, 'name':"Sweyn2", 'score': 0, 'current_user':False}]
-            return render_template("ending.html", rater_percentage=rater_percentage, leaderboard_users=leaderboard_users)
+            rater_percentage = round(session['correct'] * 100.0 / (len(comparison_queue)), 1)
+            num_right = session['correct']
+            all_users = list(db['users'].find().sort("score", -1))
+            leaderboard_users = []
+            rank = 1
+            your_index = 0
+            for user in all_users:
+                if user['email'] == current_user.id:
+                    your_index = rank - 1
+                    user['current_user'] = 'you'
+                else:
+                    user['current_user'] = False
+                user['rank'] = rank
+                rank += 1
+            if your_index > 12:
+                leaderboard_users = all_users[0:10] + [{'current_user' : 'break'}] + all_users[your_index - 2: your_index + 3]
+            elif your_index + 3 < 10:
+                leaderboard_users = all_users[0:10]
+            else:
+                leaderboard_users = all_users[0:your_index+3]
+
+            return render_template("ending.html", rater_percentage=rater_percentage, num_right=num_right, leaderboard_users=leaderboard_users)
         else: 
             res = dbfunctions.get_comparison(comparison_queue[current_comparison])
             username = res['user']['username']
