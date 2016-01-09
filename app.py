@@ -137,7 +137,7 @@ def queue_doer(queue_id):
             rw = None
             if "start" in request.form:
                 try:
-                    req = dbfunctions.submit_new_turk(email, email + str(session['queue_id']), session['queue_id'])
+                    req = dbfunctions.submit_new_turk(email, "queue" + str(session['queue_id']), session['queue_id'])
                     if 'messages' in req and ('Hit with this Hit id and Turker already exists.' in req['messages'] or 'Hit with this Turker and Instagram queue already exists.' in req['messages']):
                         if 'queue_id' not in session or \
                                 'db_hit_id' not in session or \
