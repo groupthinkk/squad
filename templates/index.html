@@ -16,10 +16,17 @@
     <h2>Welcome to Squad!</h2>
 </header>
     <div class="content">
-        <p>Thank you for registering.</p>
-        <p>When there is a new challenge for you, you will receive a text with a link to play at the phone number you submitted.</p>
-        <p>Feel free to close this page.</p>
+        <p>If you have new challenges available, feel free to play them now.</p>
     </div>
+    = if more_queues:
+    <form action="/q">
+        <button value="" name="" type="submit" class="btn lets-play-btn" id="">Let's Play!</button>
+    </form>
+    = else
+    <form action="/q">
+        <button value="" name="" disabled type="submit" class="btn lets-play-btn" id="">No More Queues</button>
+    </form>
+    = endif
 <script src="static/js/TimeCircles.js"></script>
 <script src="static/js/jquery.mobile-events.min.js"></script>
 </body>

@@ -5,6 +5,8 @@ from urlparse import urlparse, urljoin
 from py import *
 from flask.ext.basicauth import BasicAuth
 from datetime import datetime, timedelta
+from operator import itemgetter
+from itertools import groupby
 import random
 import logging
 import traceback
@@ -12,6 +14,7 @@ from pymongo import MongoClient
 from flask.ext.login import LoginManager, UserMixin, login_required, login_user, logout_user, current_user
 from flask.ext.bcrypt import Bcrypt
 from hashlib import sha512
+from threading import Lock
 from twilio.rest import TwilioRestClient
 
 app = Flask(__name__)
@@ -30,6 +33,8 @@ login_manager.login_view = 'login'
 
 bcrypt = Bcrypt(app)
 
+lock = Lock()
+
 client = MongoClient("ds037713-a0.mongolab.com", 37713)
 db = client["turksquad"]
 db.authenticate("sweyn", "sweynsquad")
@@ -37,6 +42,10 @@ db.authenticate("sweyn", "sweynsquad")
 account_sid = "AC92676a683900b40e7ba19d1b9a78a5ef"
 auth_token = "4de6b64136ddfcf839562af528f9304e"
 twilio_client = TwilioRestClient(account_sid, auth_token)
+
+OVERALL_REWARDS = [50, 20, 15, 10, 10, 5, 5, 5, 5, 5]
+
+WEEKLY_REWARDS = [10, 5, 5, 5, 5]
 
 class User(UserMixin):
 
@@ -71,10 +80,17 @@ def redirect_back(endpoint, **values):
         target = url_for(endpoint, **values)
     return redirect(target)
 
+@app.route("/testaction", methods = ["GET"])
+@login_required
+def test_action():
+    session['current_comparison'] = 1000
+    return redirect(url_for('queue_doer'))
+
 @app.route("/", methods = ["GET"])
 @login_required
 def index():
-    return render_template("index.html")
+    more_queues = db.users.find_one({'email':current_user.id})['available_queues'] > 0
+    return render_template("index.html", more_queues=more_queues)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -93,7 +109,7 @@ def register():
     if result is not None:
         return render_template("register.html", message="Email already registered")
     elif password == password2:
-        db['users'].insert({"email": email, "name": name, "score": 0, "pw_hash": bcrypt.generate_password_hash(password), "phone_number": phone_number, "ig_handle": ig_handle})
+        db['users'].insert({"email": email, "name": name, "score": 0, "weekly_score": 0, 'available_queues': 3, "pw_hash": bcrypt.generate_password_hash(password), "phone_number": phone_number, "ig_handle": ig_handle})
         try:
             twilio_client.messages.create(to=phone_number, from_="+19292947687", body="Thank you for registering! We'll be in touch with your first challenge soon. Reply STOP at any time to opt out.")
         except:
@@ -125,36 +141,45 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
-@app.route("/q/<int:queue_id>", methods = ["GET", "POST"])
+@app.route("/q", methods = ["GET", "POST"])
 @login_required
-def queue_doer(queue_id):
-    email = "test"
+def queue_doer():
     if request.method == "GET":
-        session["queue_id"] = queue_id
         return render_template("landing.html")
     else:
         try:
             rw = None
             if "start" in request.form:
-                try:
-                    req = dbfunctions.submit_new_turk(email, "queue" + str(session['queue_id']), session['queue_id'])
-                    if 'messages' in req and ('Hit with this Hit id and Turker already exists.' in req['messages'] or 'Hit with this Turker and Instagram queue already exists.' in req['messages']):
-                        if 'queue_id' not in session or \
-                                'db_hit_id' not in session or \
-                                'comparison_queue' not in session or \
-                                'current_comparison' not in session or \
-                                'correct' not in session or \
-                                'contains_target' not in session:
-                            return """You already started this queue and navigated away."""
-                    else:
-                        session['db_hit_id'] = req['id']
-                        session['comparison_queue'] = req['instagram_queue']['comparisons']
-                        random.shuffle(session['comparison_queue'])
-                        session['current_comparison'] = 0
-                        session['correct'] = 0
-                        session['contains_target'] = 0
-                except Exception, e:
-                    return traceback.format_exc()
+                if 'queue_id' not in session or \
+                        'db_hit_id' not in session or \
+                        'comparison_queue' not in session or \
+                        'current_comparison' not in session or \
+                        'correct' not in session or \
+                        'contains_target' not in session:
+                    if db.users.find_one({'email':current_user.id})['available_queues'] == 0:
+                        return redirect(url_for('index'))
+                    try:
+                        with lock:
+                            session['queue_id'] = db.queue_num.find_one()['queue_num']
+                            db.queue_num.update({'queue_num':session['queue_id']}, {'$inc':{'queue_num':1}})
+                        req = dbfunctions.submit_new_turk(current_user.id, "queue" + str(session['queue_id']), session['queue_id'])
+                        if 'messages' in req and ('Hit with this Hit id and Turker already exists.' in req['messages'] or 'Hit with this Turker and Instagram queue already exists.' in req['messages']):
+                            if 'queue_id' not in session or \
+                                    'db_hit_id' not in session or \
+                                    'comparison_queue' not in session or \
+                                    'current_comparison' not in session or \
+                                    'correct' not in session or \
+                                    'contains_target' not in session:
+                                return """You already started this queue and navigated away."""
+                        else:
+                            session['db_hit_id'] = req['id']
+                            session['comparison_queue'] = req['instagram_queue']['comparisons']
+                            random.shuffle(session['comparison_queue'])
+                            session['current_comparison'] = 0
+                            session['correct'] = 0
+                            session['contains_target'] = 0
+                    except Exception, e:
+                        return traceback.format_exc()
             elif 'posttype' in request.form and request.form['posttype'] == 'oo':
                 print "hi", db['users'].find_one({'email':current_user.id})
                 try:
@@ -191,7 +216,7 @@ def queue_doer(queue_id):
                 elif correct > 20:
                     add_score = 5
                 if add_score > 0:
-                    db['users'].update({'email':current_user.id}, {'$inc':{'score': add_score}})
+                    db['users'].update({'email':current_user.id}, {'$inc':{'score': add_score}, '$inc':{'weekly_score': add_score}, '$inc':{'available_queues': -1}})
             return render_new_post(rw)
         except:
             return traceback.format_exc()
@@ -203,26 +228,92 @@ def render_new_post(rw):
         if current_comparison >= len(comparison_queue):
             rater_percentage = round(session['correct'] * 100.0 / (len(comparison_queue)), 1)
             num_right = session['correct']
-            all_users = list(db['users'].find().sort("score", -1))
-            leaderboard_users = []
+            all_user_results = list(db['users'].find().sort("score", -1))
+            all_users_grouped = groupby(all_user_results, lambda x: x['score'])
+            overall_leaderboard_users = []
             rank = 1
             your_index = 0
-            for user in all_users:
-                if user['email'] == current_user.id:
-                    your_index = rank - 1
-                    user['current_user'] = 'you'
-                else:
-                    user['current_user'] = False
-                user['rank'] = rank
-                rank += 1
-            if your_index > 12:
-                leaderboard_users = all_users[0:10] + [{'current_user' : 'break'}] + all_users[your_index - 2: your_index + 3]
-            elif your_index + 3 < 10:
-                leaderboard_users = all_users[0:10]
+            for _, user_group in all_users_grouped:
+                user_group = list(user_group)
+                num_users = len(user_group)
+                reward = round(sum(OVERALL_REWARDS[rank-1:rank+num_users-1])/float(num_users), 2) if rank < 11 else ''
+                placed_rank = rank
+                for user in user_group:
+                    if user['email'] == current_user.id:
+                        user['current_user'] = 'you'
+                    else:
+                        user['current_user'] = False
+                    user['rank'] = placed_rank
+                    if reward == '':
+                        user['reward'] = reward
+                    elif reward == int(reward):
+                        user['reward'] = '$' + str(int(reward))
+                    else:
+                        user['reward'] = '$' + str(round(reward, 2))
+                    if rank < len(OVERALL_REWARDS) + 1:
+                        overall_leaderboard_users.append(user)
+                    placed_rank = '' if reward != '' else placed_rank
+                rank += num_users
+            your_index = 0
+            for i in xrange(len(all_user_results)):
+                if all_user_results[i]['email'] == current_user.id:
+                    your_index = i
+                    break
+            print all_user_results
+            if your_index > 2:
+                around_me = all_user_results[your_index-2:your_index+3]
             else:
-                leaderboard_users = all_users[0:your_index+3]
-
-            return render_template("ending.html", rater_percentage=rater_percentage, num_right=num_right, leaderboard_users=leaderboard_users)
+                around_me = all_user_results[:your_index+3]
+            if len(set([x['email'] for x in (overall_leaderboard_users + around_me)])) == len(overall_leaderboard_users+around_me):
+                overall_leaderboard_users += [{'current_user' : 'break'}] + around_me
+            else:
+                for user in around_me:
+                    if [el for el in overall_leaderboard_users if el['email'] == user['email']] == 0:
+                        overall_leaderboard_users.append(user)
+            weekly_user_results = list(db['users'].find().sort("weekly_score", -1))
+            weekly_users_grouped = groupby(weekly_user_results, lambda x: x['weekly_score'])
+            weekly_leaderboard_users = []
+            rank = 1
+            your_index = 0
+            for _, user_group in weekly_users_grouped:
+                user_group = list(user_group)
+                num_users = len(user_group)
+                reward = round(sum(OVERALL_REWARDS[rank-1:rank+num_users-1])/float(num_users), 2) if rank < 11 else ''
+                placed_rank = rank
+                for user in user_group:
+                    if user['email'] == current_user.id:
+                        user['current_user'] = 'you'
+                    else:
+                        user['current_user'] = False
+                    user['rank'] = placed_rank
+                    if reward == '':
+                        user['reward'] = reward
+                    elif reward == int(reward):
+                        user['reward'] = '$' + str(int(reward))
+                    else:
+                        user['reward'] = '$' + str(round(reward, 2))
+                    if rank < len(WEEKLY_REWARDS) + 1:
+                        weekly_leaderboard_users.append(user)
+                    placed_rank = '' if reward != '' else placed_rank
+                rank += num_users
+            your_index = 0
+            for i in xrange(len(weekly_user_results)):
+                if weekly_user_results[i]['email'] == current_user.id:
+                    your_index = i
+                    break
+            if your_index > 2:
+                around_me = weekly_user_results[your_index-2:your_index+3]
+            else:
+                around_me = weekly_user_results[:your_index+3]
+            if len(set([x['email'] for x in (weekly_leaderboard_users + around_me)])) == len(weekly_leaderboard_users+around_me):
+                weekly_leaderboard_users += [{'current_user' : 'break'}] + around_me
+            else:
+                for user in around_me:
+                    if [el for el in weekly_leaderboard_users if el['email'] == user['email']] == 0:
+                        weekly_leaderboard_users.append(user)
+            more_queues = db.users.find_one({'email':current_user.id})['available_queues'] > 0
+            #session.clear()
+            return render_template("ending.html", rater_percentage=rater_percentage, num_right=num_right, overall_leaderboard_users=overall_leaderboard_users, weekly_leaderboard_users=weekly_leaderboard_users, more_queues = more_queues)
         else: 
             res = dbfunctions.get_comparison(comparison_queue[current_comparison])
             username = res['user']['username']

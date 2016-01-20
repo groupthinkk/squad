@@ -25,11 +25,11 @@
         <div class="wrapper">
 
             <div class="main">
-                <form method='post' id="post1form">
-                    <input type=hidden id="posttype1" name="posttype" value="{{posttype}}">
-                    <input type=hidden name="compid" value="{{compid}}">
-                    <input type=hidden name="postid" value="{{post1id}}">
-                    <article class="left post" id="post1">
+                <article class="left post" id="post1">
+                    <form method='post' id="post1form">
+                        <input type=hidden id="posttype1" name="posttype" value="{{posttype}}">
+                        <input type=hidden name="compid" value="{{compid}}">
+                        <input type=hidden name="postid" value="{{post1id}}">
                         <header class="post-header">
                             <img class="user-avatar" src="{{profile}}">
                             <div class="user-name">{{username}}</div>
@@ -43,13 +43,13 @@
                         <div class="post-info">
                             <div class="caption-outer"><span class="username">{{username}}</span> <span class="caption caption0">{{post1caption}}</span></div>
                         </div>
-                    </article>
-                </form>
+                    </form>
+                </article>
                 <section class="middle timer" id="timer">
 
                 </section>
-                <form method='post' id="post2form">
-                    <article class="right post" id="post2">
+                <article class="right post" id="post2">
+                    <form method='post' id="post2form">
                         <input type=hidden name="posttype" value="{{posttype}}">
                         <input type=hidden name="compid" value="{{compid}}">
                         <input type=hidden name="postid" value="{{post2id}}">
@@ -66,57 +66,9 @@
                         <div class="post-info">
                             <div class="caption-outer"><span class="user-name">{{username}}</span> <span class="caption caption1">{{post2caption}}</span></div>
                         </div>
-                    </article>
-                </form>
-            </div>
-            <div class="dashboard" id="dashboard" style="display:none;">
-                <header>
-                    <img src="static/img/squad-logo.png" class="logo" alt="squad logo">
-                    <img src="static/img/got-social-skills.png" class="tagline" alt="got social skills">
-                </header>
-                <div class="flex-landscape-only">
-                    <div class="landscape-left">
-                        <div class="shaded-box accuracy">
-                            <header>
-                                <h2 class="boxed">Accuracy</h2>
-                            </header>
-                            <div class="content boxed"><span class="figure" id="accuracy"></span><span class="superscript">%</span></div>
-                        </div>
-                        <div class="two-across">
-                            <div class="shaded-box">
-                                <header>
-                                    <h2 class="boxed">Right Answers</h2>
-                                </header>
-                                <div class="content boxed"><span class="figure" id="right"></span></div>
-                            </div>
-                            <div class="shaded-box">
-                                <header>
-                                    <h2 class="boxed">Wrong Answers</h2>
-                                </header>
-                                <div class="content boxed"><span class="figure" id="wrong"></span></div>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <div class="shaded-box chart">
-                        <header>
-                            <h2 class="boxed">Your last 10 results</h2>
-                        </header>
-                        <div class="content boxed">
-                            <div class="chart-container">
-                                <img src="static/img/fakechart-2.svg" alt="fake chart">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-                <h2 class="see-you-soon">See you soon for the next round!</h2>
-
-            </div>
-            <div class="expired" id="expired" style="display:none;">
-                <h2>Time's up!</h2>
+                    </form>
+                </article>
+                
             </div>
         </div>
     </div>

@@ -71,18 +71,18 @@
 
     function showImages() {
         function ready() {
-            setupStopwatch();
+            
             $('.image').fadeIn('slow');
         }
-        showBadge();
+        //showBadge();
         ready();
     }
 
-    function showBadge() {
-        $('.badger').fadeIn('fast', function() {
-            $(this).delay(1000).fadeOut('slow');
-        });
-    }
+    // function showBadge() {
+    //     $('.badger').fadeIn('fast', function() {
+    //         $(this).delay(1000).fadeOut('slow');
+    //     });
+    // }
 
     function showTimestamps() {
         var timeFormat = 'dd MMM D, h:mma';
@@ -121,15 +121,15 @@
         });
     }
 
-    function bindArrowKeys() {
-        $('body').on('keyup', function(e) {
-            if (e.which === 37) { // left
-                submitPost('post1');
-            } else if (e.which === 39) { // right
-                submitPost('post2');
-            }
-        });
-    }
+    // function bindArrowKeys() {
+    //     $('body').on('keyup', function(e) {
+    //         if (e.which === 37) { // left
+    //             submitPost('post1');
+    //         } else if (e.which === 39) { // right
+    //             submitPost('post2');
+    //         }
+    //     });
+    // }
 
     function submitPost(post) {
         var postId = '#' + post;
@@ -142,13 +142,38 @@
 
     }
 
+    function showPost() {
+        var $container = $('.viewport');
+        var scrollTo = $container.offset().left + $container.width() / 2;
+        var postSet = posts[postIndex];
+
+        $('.user-avatar').attr('src', '/images/avatars/' + postSet.profile);
+        $('.user-name').text(postSet.username);
+
+        for (var i = 0; i < 2; i++) {
+            var post = postSet.posts[i];
+            $('.' + 'image' + i).attr('src', '/images/' + post.image);
+            $('.' + 'caption' + i).text(post.caption);
+            $('#' + 'timestamp' + i).text(post.date);
+        }
+
+
+
+        setTimeout(function() {
+            $container.scrollLeft(scrollTo);
+            cacheNextImages(postIndex + 1);
+        }, 200);
+
+    }
+
     window.init = function() {
         var $container = $('.viewport');
         var scrollTo = $container.offset().left + $container.width() / 2;
         showTimestamps();
-        showImages();
+        //showImages();
+        setupStopwatch();
         setupTouchDetect();
-        bindArrowKeys();
+        //bindArrowKeys();
         $container.scrollLeft(scrollTo);
     };
 

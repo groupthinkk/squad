@@ -20,20 +20,21 @@ def add_username(username):
     for data in datalist:
         if data['username'] == username:
             return str(data['id'])
+    print "Not found for ", username
     return False
 
 def get_posts_from_user_id(user_id, num_times=1):
     media_list, next_ = api.user_recent_media(user_id=user_id, count=40)
     i = 0
-    #while next_ and datetime.datetime.now() - media_list[-1].created_time < datetime.timedelta(days=365):
-    while next_:
+    while next_ and datetime.datetime.now() - media_list[-1].created_time < datetime.timedelta(days=365):
+    #while next_:
        more_media, next_ = api.user_recent_media(user_id=user_id, count=40, with_next_url=next_)
        media_list.extend(more_media)
        i += 1
     ret_list = []
     for media in media_list:
-        #if media.type != 'video' and datetime.datetime.now() - media.created_time <= datetime.timedelta(days=365):
-        if media.type != 'video':
+        if media.type != 'video' and datetime.datetime.now() - media.created_time <= datetime.timedelta(days=365):
+        #if media.type != 'video':
             ret_list.append([media.user.username, media.created_time, media.id, media.like_count, media.comment_count, media.images['standard_resolution'].url])
     return ret_list
 
