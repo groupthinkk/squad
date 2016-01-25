@@ -320,7 +320,7 @@ def render_new_post(rw):
                     if [el for el in weekly_leaderboard_users if el['email'] == user['email']] == 0:
                         weekly_leaderboard_users.append(user)
             more_queues = db.users.find_one({'email':current_user.id})['available_queues'] > 0
-            #session.clear()
+            session.clear()
             return render_template("ending.html", rater_percentage=rater_percentage, num_right=num_right, overall_leaderboard_users=overall_leaderboard_users, weekly_leaderboard_users=weekly_leaderboard_users, more_queues = more_queues)
         else: 
             res = dbfunctions.get_comparison(comparison_queue[current_comparison])
