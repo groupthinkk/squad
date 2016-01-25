@@ -12,6 +12,7 @@ db = client["turksquad"]
 db.authenticate("sweyn", "sweynsquad")
 
 WEEKLY_REWARDS = [10, 5, 5, 5, 5]
+WEEKLY_POINTS = [200, 150, 100]
 
 def record_and_reset_weekly():
     weekly_user_results = list(db['users'].find().sort("weekly_score", -1))
@@ -38,6 +39,8 @@ def record_and_reset_weekly():
     weekly_leaders = []
     for user in weekly_leaderboard_users:
         weekly_leaders.append({'email': user['email'], 'reward': user['reward'], 'weekly_score': user['weekly_score']})
+        if user['rank'] < 4:
+            db['users'].update({'email':user['email']}, {'$inc':{'score': WEEKLY_POINTS[user['rank']-1]}})
     db['weekly_leaders'].insert({'winners': weekly_leaders, 'date': dt.datetime.now()})
     db['users'].update(
         {'weekly_score':{'$gte':0}},
@@ -49,4 +52,8 @@ def record_and_reset_weekly():
 def scheduled_job():
     record_and_reset_weekly()
 
-sched.start()
+if __name__ == '__main__':
+    if argv[1] == "0":
+        record_and_reset_weekly()
+    else:
+        sched.start()
