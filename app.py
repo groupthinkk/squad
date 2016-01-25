@@ -47,6 +47,8 @@ OVERALL_REWARDS = [50, 20, 15, 10, 10, 5, 5, 5, 5, 5]
 
 WEEKLY_REWARDS = [10, 5, 5, 5, 5]
 
+POINTS = [2, 4, 6, 8, 10, 12, 15, 20, 25, 30, 40, 50, 60, 75, 100]
+
 class User(UserMixin):
 
     def __init__(self, username, phone_number):
@@ -131,7 +133,6 @@ def login():
         user = User(email, user_entry['phone_number'])
         login_user(user, remember=True)
         flash('Logged in successfully.')
-        print 'logged in'
         return redirect_back('index')
     return render_template('login.html', message="Incorrect username and password")
 
@@ -181,7 +182,6 @@ def queue_doer():
                     except Exception, e:
                         return traceback.format_exc()
             elif 'posttype' in request.form and request.form['posttype'] == 'oo':
-                print "hi", db['users'].find_one({'email':current_user.id})
                 try:
                     time = datetime.now() - session['time']
                     comp_id = request.form['compid']
@@ -210,13 +210,8 @@ def queue_doer():
                 correct = session['correct']
                 add_score = 0
                 if correct > 15:
-                    add_score = 1
-                elif correct > 17:
-                    add_score = 3
-                elif correct > 20:
-                    add_score = 5
-                if add_score > 0:
-                    db['users'].update({'email':current_user.id}, {'$inc':{'score': add_score}, '$inc':{'weekly_score': add_score}, '$inc':{'available_queues': -1}})
+                    add_score = POINTS[correct-16]
+                db['users'].update({'email':current_user.id}, {'$inc':{'score': add_score}, '$inc':{'weekly_score': add_score}, '$inc':{'available_queues': -1}})
             return render_new_post(rw)
         except:
             return traceback.format_exc()
@@ -259,7 +254,6 @@ def render_new_post(rw):
                 if all_user_results[i]['email'] == current_user.id:
                     your_index = i
                     break
-            print all_user_results
             if your_index > 2:
                 around_me = all_user_results[your_index-2:your_index+3]
             else:
@@ -278,7 +272,7 @@ def render_new_post(rw):
             for _, user_group in weekly_users_grouped:
                 user_group = list(user_group)
                 num_users = len(user_group)
-                reward = round(sum(OVERALL_REWARDS[rank-1:rank+num_users-1])/float(num_users), 2) if rank < 11 else ''
+                reward = round(sum(WEEKLY_REWARDS[rank-1:rank+num_users-1])/float(num_users), 2) if rank < 11 else ''
                 placed_rank = rank
                 for user in user_group:
                     if user['email'] == current_user.id:

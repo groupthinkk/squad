@@ -1,3 +1,4 @@
+APScheduler==3.0.5
 bcrypt==2.0.0
 boto==2.38.0
 boto3==1.1.1
@@ -31,4 +32,5 @@ requests==2.7.0
 simplejson==3.8.0
 six==1.9.0
 twilio==5.2.0
+tzlocal==1.2
 Werkzeug==0.10.4
