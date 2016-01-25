@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css" integrity="sha384-aUGj/X2zp5rLCbBxumKTCw2Z50WgIr1vs/PFN4praOTvYXWlVyh2UtNUU0KAUhAX" crossorigin="anonymous">
     <link rel="stylesheet" href="static/css/TimeCircles.css">
     <link rel="stylesheet" href="static/css/main.css">
+    <link rel="icon" href="static/img/favicon.ico">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
     <meta name="viewport" content="initial-scale=1, maximum-scale=1">
@@ -27,6 +28,24 @@
         <button value="" name="" disabled type="submit" class="btn lets-play-btn" id="">No More Queues</button>
     </form>
     = endif
+    <div class="content">
+        <form method="post" class="form-refer" role="form">
+            <br>
+            = if message is defined and message != ""
+            = if message == "There was an error with your referral"
+            <div class="alert alert-danger" role="alert">{{message}}</div>
+            = else
+            <div class="alert alert-success" role="alert">{{message}}</div>
+            = endif
+            = endif
+            <p>Invite friends to prove who is really better at Instagram.</p>
+            <p>You'll both receive 25 points if they sign up.</p>
+            <input name="name" type="text" class="form-control" placeholder="Name" size="15" required>
+            <br>
+            <input name="phone_number" type="tel" class="form-control" placeholder="Phone Number" maxlength="15" size="15" width="15" pattern="(?\d{3})?-?\d{3}-?\d{4}" required>
+            <button class="btn lets-play-btn" name="refer" type="submit">Refer</button>
+        </form>
+    </div>
 <script src="static/js/TimeCircles.js"></script>
 <script src="static/js/jquery.mobile-events.min.js"></script>
 </body>

@@ -51,8 +51,9 @@ POINTS = [2, 4, 6, 8, 10, 12, 15, 20, 25, 30, 40, 50, 60, 75, 100]
 
 class User(UserMixin):
 
-    def __init__(self, username, phone_number):
+    def __init__(self, username, name, phone_number):
         self.id = username
+        self.name = name
         self.phone_number = phone_number
 
 @login_manager.user_loader
@@ -60,7 +61,7 @@ def load_user(username):
     user_entry = db['users'].find_one({'email':username})
     if user_entry == None:
         return None
-    user = User(username, user_entry['phone_number'])
+    user = User(username, user_entry['name'], user_entry['phone_number'])
     return user
 
 def is_safe_url(target):
@@ -88,11 +89,20 @@ def test_action():
     session['current_comparison'] = 1000
     return redirect(url_for('queue_doer'))
 
-@app.route("/", methods = ["GET"])
+@app.route("/", methods = ["GET", "POST"])
 @login_required
 def index():
+    message = ""
+    if request.method == "POST" and "refer" in request.form:
+        name = request.form['name']
+        phone_number = request.form['phone_number'].replace('-', '').replace('(', '').replace(')', '')
+        try:
+            twilio_client.messages.create(to=phone_number, from_="+19292947687", body="Hey %s, %s thinks they're better than you at Instagram. Sign up to prove them wrong: http://squadtest.herokuapp.com/register#reg_code=%s" % (name, current_user.name, current_user.id))
+            message = "Your friend has been referred"
+        except:
+            message = "There was an error with your referral"
     more_queues = db.users.find_one({'email':current_user.id})['available_queues'] > 0
-    return render_template("index.html", more_queues=more_queues)
+    return render_template("index.html", more_queues=more_queues, message=message)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -105,18 +115,22 @@ def register():
     phone_number = request.form['phone_number'].replace('-', '').replace('(', '').replace(')', '')
     ig_handle = request.form['ig_handle']
     reg_code = request.form['reg_code']
-    if db['reg_codes'].find_one({'reg_code':reg_code}) == None:
+    base_score = 0
+    if db['users'].find_one({'email':reg_code}) != None:
+        db['users'].update({'email':reg_code}, {"$inc": {"score": 25, "weekly_score": 25}})
+        base_score = 25
+    elif db['reg_codes'].find_one({'reg_code':reg_code}) == None:
         return render_template("register.html", message="Registration code is not valid")
     result = db['users'].find_one({"email": email})
     if result is not None:
         return render_template("register.html", message="Email already registered")
     elif password == password2:
-        db['users'].insert({"email": email, "name": name, "score": 0, "weekly_score": 0, 'available_queues': 3, "pw_hash": bcrypt.generate_password_hash(password), "phone_number": phone_number, "ig_handle": ig_handle})
+        db['users'].insert({"email": email, "name": name, "score": base_score, "weekly_score": base_score, 'available_queues': 3, "pw_hash": bcrypt.generate_password_hash(password), "phone_number": phone_number, "ig_handle": ig_handle})
         try:
             twilio_client.messages.create(to=phone_number, from_="+19292947687", body="Thank you for registering! We'll be in touch with your first challenge soon. Reply STOP at any time to opt out.")
         except:
             pass
-        user = User(email, phone_number)
+        user = User(email, name, phone_number)
         login_user(user, remember=True)
         return redirect(url_for('index'))
     else:
@@ -130,7 +144,7 @@ def login():
     email = request.form['email']
     user_entry = db['users'].find_one({'email':email})
     if user_entry != None and bcrypt.check_password_hash(user_entry['pw_hash'], request.form['password']):
-        user = User(email, user_entry['phone_number'])
+        user = User(email, user_entry['name'], user_entry['phone_number'])
         login_user(user, remember=True)
         flash('Logged in successfully.')
         return redirect_back('index')
@@ -306,7 +320,7 @@ def render_new_post(rw):
                     if [el for el in weekly_leaderboard_users if el['email'] == user['email']] == 0:
                         weekly_leaderboard_users.append(user)
             more_queues = db.users.find_one({'email':current_user.id})['available_queues'] > 0
-            session.clear()
+            #session.clear()
             return render_template("ending.html", rater_percentage=rater_percentage, num_right=num_right, overall_leaderboard_users=overall_leaderboard_users, weekly_leaderboard_users=weekly_leaderboard_users, more_queues = more_queues)
         else: 
             res = dbfunctions.get_comparison(comparison_queue[current_comparison])
