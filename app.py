@@ -197,6 +197,13 @@ def queue_doer():
                         return traceback.format_exc()
             elif 'posttype' in request.form and request.form['posttype'] == 'oo':
                 try:
+                    if 'time' not in session or \
+                            'db_hit_id' not in session or \
+                            'correct' not in session or \
+                            'contains_target' not in session or \
+                            'current_comparison' not in session or \
+                            'comparison_queue' not in session:
+                        return redirect(url_for('index'))
                     time = datetime.now() - session['time']
                     comp_id = request.form['compid']
                     chosen_post_id = request.form['postid']
@@ -218,14 +225,12 @@ def queue_doer():
                 session['current_comparison'] += 1
             else:
                 session['current_comparison'] += 1
-            current_comparison = session['current_comparison']
-            comparison_queue = session['comparison_queue']
-            if current_comparison >= len(comparison_queue):
+            if session['current_comparison'] >= len(session['comparison_queue']):
                 correct = session['correct']
                 add_score = 0
                 if correct > 15:
                     add_score = POINTS[correct-16]
-                db['users'].update({'email':current_user.id}, {'$inc':{'score': add_score}, '$inc':{'weekly_score': add_score}, '$inc':{'available_queues': -1}})
+                db['users'].update({'email':current_user.id}, {'$inc':{'score': add_score, 'weekly_score': add_score, 'available_queues': -1}})
             return render_new_post(rw)
         except:
             return traceback.format_exc()
