@@ -28,6 +28,10 @@
         <button value="" name="" disabled type="submit" class="btn lets-play-btn" id="">No More Queues</button>
     </form>
     = endif
+    <br>
+    <button type="button" class="btn lets-play-btn" data-toggle="modal" data-target="#myModal">
+          Leaderboard
+      </button>
     <div class="content">
         <form method="post" class="form-refer" role="form">
             <br>
@@ -45,6 +49,99 @@
             <input name="phone_number" type="tel" class="form-control" placeholder="Phone Number" maxlength="15" size="15" width="15" pattern="(?\d{3})?-?\d{3}-?\d{4}" required>
             <button class="btn lets-play-btn" name="refer" type="submit">Refer</button>
         </form>
+        
+
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">Leaderboard</h4>
+        </div>
+        <div class="modal-body">
+            <ul class="nav nav-pills nav-justified">
+                <li class="active"><a data-toggle="tab" href="#overall">Overall</a></li>
+                <li><a data-toggle="tab" href="#weekly">Weekly</a></li>
+            </ul>
+            <div class="tab-content">
+                <div id="overall" class="tab-pane fade in active">
+                  <div class="table-responsive">
+                    <table class="table table-striped" data-search="true" data-page-size="25" data-side-pagination="client" data-pagination="true">
+                        <tr>
+                            <th>Rank</th>
+                            <th>Name</th>
+                            <th>Score</th>
+                            <th>Reward</th>
+                        </tr>
+                        = for user in overall_leaderboard_users
+                        = if user.current_user == "you"
+                        <tr class="info">
+                            <td>{{user.rank}}</td>
+                            <td>{{user.name}}</td>
+                            <td>{{user.score}}</td>
+                            <td><span class="label label-pill label-success">{{user.reward}}</span></td>
+                        </tr>
+                        = elif user.current_user == "break"
+                        <tr>
+                            <td>⋮</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        = else
+                        <tr>
+                            <td>{{user.rank}}</td>
+                            <td>{{user.name}}</td>
+                            <td>{{user.score}}</td>
+                            <td><span class="label label-pill label-success">{{user.reward}}</span></td>
+                        </tr>
+                        = endif
+                        = endfor
+                    </table>
+                </div>
+            </div>
+            <div id="weekly" class="tab-pane fade">
+              <div class="table-responsive">
+                <table class="table table-striped" data-search="true" data-page-size="25" data-side-pagination="client" data-pagination="true">
+                    <tr>
+                        <th>Rank</th>
+                        <th>Name</th>
+                        <th>Score</th>
+                        <th>Reward</th>
+                    </tr>
+                    = for user in weekly_leaderboard_users
+                    = if user.current_user == "you"
+                    <tr class="info">
+                        <td>{{user.rank}}</td>
+                        <td>{{user.name}}</td>
+                        <td>{{user.weekly_score}}</td>
+                        <td><span class="label label-pill label-success">{{user.reward}}</span></td>
+                    </tr>
+                    = elif user.current_user == "break"
+                    <tr>
+                        <td>⋮</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    = else
+                    <tr>
+                        <td>{{user.rank}}</td>
+                        <td>{{user.name}}</td>
+                        <td>{{user.weekly_score}}</td>
+                        <td><span class="label label-pill label-success">{{user.reward}}</span></td>
+                    </tr>
+                    = endif
+                    = endfor
+                </table>
+            </div>
+        </div>
+    </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+    </div>
+    </div>
+    </div>
+    </div>
     </div>
 <script src="static/js/TimeCircles.js"></script>
 <script src="static/js/jquery.mobile-events.min.js"></script>

@@ -101,8 +101,9 @@ def index():
             message = "Your friend has been referred"
         except:
             message = "There was an error with your referral"
+    overall_leaderboard_users, weekly_leaderboard_users = get_leaders()
     more_queues = db.users.find_one({'email':current_user.id})['available_queues'] > 0
-    return render_template("index.html", more_queues=more_queues, message=message)
+    return render_template("index.html", more_queues=more_queues, message=message, overall_leaderboard_users=overall_leaderboard_users, weekly_leaderboard_users=weekly_leaderboard_users)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -242,88 +243,7 @@ def render_new_post(rw):
         if current_comparison >= len(comparison_queue):
             rater_percentage = round(session['correct'] * 100.0 / (len(comparison_queue)), 1)
             num_right = session['correct']
-            all_user_results = list(db['users'].find().sort("score", -1))
-            all_users_grouped = groupby(all_user_results, lambda x: x['score'])
-            overall_leaderboard_users = []
-            rank = 1
-            your_index = 0
-            for _, user_group in all_users_grouped:
-                user_group = list(user_group)
-                num_users = len(user_group)
-                reward = round(sum(OVERALL_REWARDS[rank-1:rank+num_users-1])/float(num_users), 2) if rank < 11 else ''
-                placed_rank = rank
-                for user in user_group:
-                    if user['email'] == current_user.id:
-                        user['current_user'] = 'you'
-                    else:
-                        user['current_user'] = False
-                    user['rank'] = placed_rank
-                    if reward == '':
-                        user['reward'] = reward
-                    elif reward == int(reward):
-                        user['reward'] = '$' + str(int(reward))
-                    else:
-                        user['reward'] = '$' + str(round(reward, 2))
-                    if rank < len(OVERALL_REWARDS) + 1:
-                        overall_leaderboard_users.append(user)
-                    placed_rank = '' if reward != '' else placed_rank
-                rank += num_users
-            your_index = 0
-            for i in xrange(len(all_user_results)):
-                if all_user_results[i]['email'] == current_user.id:
-                    your_index = i
-                    break
-            if your_index > 2:
-                around_me = all_user_results[your_index-2:your_index+3]
-            else:
-                around_me = all_user_results[:your_index+3]
-            if len(set([x['email'] for x in (overall_leaderboard_users + around_me)])) == len(overall_leaderboard_users+around_me):
-                overall_leaderboard_users += [{'current_user' : 'break'}] + around_me
-            else:
-                for user in around_me:
-                    if [el for el in overall_leaderboard_users if el['email'] == user['email']] == 0:
-                        overall_leaderboard_users.append(user)
-            weekly_user_results = list(db['users'].find().sort("weekly_score", -1))
-            weekly_users_grouped = groupby(weekly_user_results, lambda x: x['weekly_score'])
-            weekly_leaderboard_users = []
-            rank = 1
-            your_index = 0
-            for _, user_group in weekly_users_grouped:
-                user_group = list(user_group)
-                num_users = len(user_group)
-                reward = round(sum(WEEKLY_REWARDS[rank-1:rank+num_users-1])/float(num_users), 2) if rank < 11 else ''
-                placed_rank = rank
-                for user in user_group:
-                    if user['email'] == current_user.id:
-                        user['current_user'] = 'you'
-                    else:
-                        user['current_user'] = False
-                    user['rank'] = placed_rank
-                    if reward == '':
-                        user['reward'] = reward
-                    elif reward == int(reward):
-                        user['reward'] = '$' + str(int(reward))
-                    else:
-                        user['reward'] = '$' + str(round(reward, 2))
-                    if rank < len(WEEKLY_REWARDS) + 1:
-                        weekly_leaderboard_users.append(user)
-                    placed_rank = '' if reward != '' else placed_rank
-                rank += num_users
-            your_index = 0
-            for i in xrange(len(weekly_user_results)):
-                if weekly_user_results[i]['email'] == current_user.id:
-                    your_index = i
-                    break
-            if your_index > 2:
-                around_me = weekly_user_results[your_index-2:your_index+3]
-            else:
-                around_me = weekly_user_results[:your_index+3]
-            if len(set([x['email'] for x in (weekly_leaderboard_users + around_me)])) == len(weekly_leaderboard_users+around_me):
-                weekly_leaderboard_users += [{'current_user' : 'break'}] + around_me
-            else:
-                for user in around_me:
-                    if [el for el in weekly_leaderboard_users if el['email'] == user['email']] == 0:
-                        weekly_leaderboard_users.append(user)
+            overall_leaderboard_users, weekly_leaderboard_users = get_leaders()
             more_queues = db.users.find_one({'email':current_user.id})['available_queues'] > 0
             session.clear()
             return render_template("ending.html", rater_percentage=rater_percentage, num_right=num_right, overall_leaderboard_users=overall_leaderboard_users, weekly_leaderboard_users=weekly_leaderboard_users, more_queues = more_queues)
@@ -354,6 +274,91 @@ def render_new_post(rw):
                                    rw = None, posttype = posttype, compid=compid, correct=correct, remaining=remaining)
     except Exception, e:
         return traceback.format_exc()
+
+def get_leaders():
+    all_user_results = list(db['users'].find().sort("score", -1))
+    all_users_grouped = groupby(all_user_results, lambda x: x['score'])
+    overall_leaderboard_users = []
+    rank = 1
+    your_index = 0
+    for _, user_group in all_users_grouped:
+        user_group = list(user_group)
+        num_users = len(user_group)
+        reward = round(sum(OVERALL_REWARDS[rank-1:rank+num_users-1])/float(num_users), 2) if rank < 11 else ''
+        placed_rank = rank
+        for user in user_group:
+            if user['email'] == current_user.id:
+                user['current_user'] = 'you'
+            else:
+                user['current_user'] = False
+            user['rank'] = placed_rank
+            if reward == '':
+                user['reward'] = reward
+            elif reward == int(reward):
+                user['reward'] = '$' + str(int(reward))
+            else:
+                user['reward'] = '$' + str(round(reward, 2))
+            if rank < len(OVERALL_REWARDS) + 1:
+                overall_leaderboard_users.append(user)
+            placed_rank = '' if reward != '' else placed_rank
+        rank += num_users
+    your_index = 0
+    for i in xrange(len(all_user_results)):
+        if all_user_results[i]['email'] == current_user.id:
+            your_index = i
+            break
+    if your_index > 2:
+        around_me = all_user_results[your_index-2:your_index+3]
+    else:
+        around_me = all_user_results[:your_index+3]
+    if len(set([x['email'] for x in (overall_leaderboard_users + around_me)])) == len(overall_leaderboard_users+around_me):
+        overall_leaderboard_users += [{'current_user' : 'break'}] + around_me
+    else:
+        for user in around_me:
+            if [el for el in overall_leaderboard_users if el['email'] == user['email']] == 0:
+                overall_leaderboard_users.append(user)
+    weekly_user_results = list(db['users'].find().sort("weekly_score", -1))
+    weekly_users_grouped = groupby(weekly_user_results, lambda x: x['weekly_score'])
+    weekly_leaderboard_users = []
+    rank = 1
+    your_index = 0
+    for _, user_group in weekly_users_grouped:
+        user_group = list(user_group)
+        num_users = len(user_group)
+        reward = round(sum(WEEKLY_REWARDS[rank-1:rank+num_users-1])/float(num_users), 2) if rank < 11 else ''
+        placed_rank = rank
+        for user in user_group:
+            if user['email'] == current_user.id:
+                user['current_user'] = 'you'
+            else:
+                user['current_user'] = False
+            user['rank'] = placed_rank
+            if reward == '':
+                user['reward'] = reward
+            elif reward == int(reward):
+                user['reward'] = '$' + str(int(reward))
+            else:
+                user['reward'] = '$' + str(round(reward, 2))
+            if rank < len(WEEKLY_REWARDS) + 1:
+                weekly_leaderboard_users.append(user)
+            placed_rank = '' if reward != '' else placed_rank
+        rank += num_users
+    your_index = 0
+    for i in xrange(len(weekly_user_results)):
+        if weekly_user_results[i]['email'] == current_user.id:
+            your_index = i
+            break
+    if your_index > 2:
+        around_me = weekly_user_results[your_index-2:your_index+3]
+    else:
+        around_me = weekly_user_results[:your_index+3]
+    if len(set([x['email'] for x in (weekly_leaderboard_users + around_me)])) == len(weekly_leaderboard_users+around_me):
+        weekly_leaderboard_users += [{'current_user' : 'break'}] + around_me
+    else:
+        for user in around_me:
+            if [el for el in weekly_leaderboard_users if el['email'] == user['email']] == 0:
+                weekly_leaderboard_users.append(user)
+    return overall_leaderboard_users, weekly_leaderboard_users
 
 if __name__ == '__main__':
     stream_handler = logging.StreamHandler()
