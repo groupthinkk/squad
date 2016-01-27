@@ -16,10 +16,6 @@ body {
 	text-align: center;
 }
 
-input:focus{
-    outline: none;   
-}
-
 /*#box {
 	text-align: center;
 }
