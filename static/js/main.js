@@ -41,7 +41,7 @@
             "bg_width": 1,
             "fg_width": 0.13333333333333333,
             "circle_bg_color": "#EEEEEE",
-            "total_duration": 10,
+            "total_duration": 15,
             "time": {
                 "Days": {
                     "show": false

@@ -97,12 +97,12 @@ def index():
         name = request.form['name']
         phone_number = request.form['phone_number'].replace('-', '').replace('(', '').replace(')', '')
         try:
-            twilio_client.messages.create(to=phone_number, from_="+19292947687", body="Hey %s, %s thinks they're better than you at Instagram. Sign up to prove them wrong: http://squadtest.herokuapp.com/register#reg_code=%s" % (name, current_user.name, current_user.id))
+            twilio_client.messages.create(to=phone_number, from_="+19292947687", body="Squad: Hey %s, %s thinks they're better than you at Instagram. Sign up to prove them wrong: http://squadtest.herokuapp.com/register#reg_code=%s" % (name, current_user.name, current_user.id))
             message = "Your friend has been referred"
         except:
             message = "There was an error with your referral"
     overall_leaderboard_users, weekly_leaderboard_users = get_leaders()
-    more_queues = db.users.find_one({'email':current_user.id})['available_queues'] > 0
+    more_queues = len(db.users.find_one({'email':current_user.id})['available_queues']) > 0
     return render_template("index.html", more_queues=more_queues, message=message, overall_leaderboard_users=overall_leaderboard_users, weekly_leaderboard_users=weekly_leaderboard_users)
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -126,9 +126,11 @@ def register():
     if result is not None:
         return render_template("register.html", message="Email already registered")
     elif password == password2:
-        db['users'].insert({"email": email, "name": name, "score": base_score, "weekly_score": base_score, 'available_queues': 3, "pw_hash": bcrypt.generate_password_hash(password), "phone_number": phone_number, "ig_handle": ig_handle})
+        queue_type_list = ['food', 'fashion', 'sports']
+        shuffle(queue_type_list)
+        db['users'].insert({"email": email, "name": name, "score": base_score, "weekly_score": base_score, 'available_queues': queue_type_list, "pw_hash": bcrypt.generate_password_hash(password), "phone_number": phone_number, "ig_handle": ig_handle})
         try:
-            twilio_client.messages.create(to=phone_number, from_="+19292947687", body="Thank you for registering! We'll be in touch with your first challenge soon. Reply STOP at any time to opt out.")
+            twilio_client.messages.create(to=phone_number, from_="+19292947687", body="Squad: Thank you for registering! We'll be in touch with more challenges soon. Reply STOP at any time to opt out.")
         except:
             pass
         user = User(email, name, phone_number)
@@ -172,12 +174,13 @@ def queue_doer():
                         'current_comparison' not in session or \
                         'correct' not in session or \
                         'contains_target' not in session:
-                    if db.users.find_one({'email':current_user.id})['available_queues'] == 0:
+                    user_data = db.users.find_one({'email':current_user.id})
+                    if len(user_data['available_queues']) == 0:
                         return redirect(url_for('index'))
                     try:
                         with lock:
-                            session['queue_id'] = db.queue_num.find_one()['queue_num']
-                            db.queue_num.update({'queue_num':session['queue_id']}, {'$inc':{'queue_num':1}})
+                            session['queue_id'] = db.queue_num.find_one({'queue_type':user_data["available_queues"][0]})['queue_num']
+                            db.queue_num.update({'queue_type':user_data["available_queues"][0]}, {'$inc':{'queue_num':1}})
                         req = dbfunctions.submit_new_turk(current_user.id, "queue" + str(session['queue_id']), session['queue_id'])
                         if 'messages' in req and ('Hit with this Hit id and Turker already exists.' in req['messages'] or 'Hit with this Turker and Instagram queue already exists.' in req['messages']):
                             if 'queue_id' not in session or \
@@ -231,7 +234,7 @@ def queue_doer():
                 add_score = 0
                 if correct > 15:
                     add_score = POINTS[correct-16]
-                db['users'].update({'email':current_user.id}, {'$inc':{'score': add_score, 'weekly_score': add_score, 'available_queues': -1}})
+                db['users'].update({'email':current_user.id}, {'$inc':{'score': add_score, 'weekly_score': add_score}, "$pop": {"available_queues": -1}})
             return render_new_post(rw)
         except:
             return traceback.format_exc()
@@ -241,12 +244,15 @@ def render_new_post(rw):
         current_comparison = session['current_comparison']
         comparison_queue = session['comparison_queue']
         if current_comparison >= len(comparison_queue):
-            rater_percentage = round(session['correct'] * 100.0 / (len(comparison_queue)), 1)
+            rater_percentage = round(session['correct'] * 100.0 / (len(comparison_queue)), 0)
             num_right = session['correct']
+            add_score = 0
+            if correct > 15:
+                add_score = POINTS[correct-16]
             overall_leaderboard_users, weekly_leaderboard_users = get_leaders()
-            more_queues = db.users.find_one({'email':current_user.id})['available_queues'] > 0
+            more_queues = len(db.users.find_one({'email':current_user.id})['available_queues']) > 0
             session.clear()
-            return render_template("ending.html", rater_percentage=rater_percentage, num_right=num_right, overall_leaderboard_users=overall_leaderboard_users, weekly_leaderboard_users=weekly_leaderboard_users, more_queues = more_queues)
+            return render_template("ending.html", rater_percentage=rater_percentage, num_right=num_right, overall_leaderboard_users=overall_leaderboard_users, weekly_leaderboard_users=weekly_leaderboard_users, more_queues = more_queues, add_score=add_score)
         else: 
             res = dbfunctions.get_comparison(comparison_queue[current_comparison])
             username = res['user']['username']
