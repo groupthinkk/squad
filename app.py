@@ -247,8 +247,8 @@ def render_new_post(rw):
             rater_percentage = round(session['correct'] * 100.0 / (len(comparison_queue)), 0)
             num_right = session['correct']
             add_score = 0
-            if correct > 15:
-                add_score = POINTS[correct-16]
+            if num_right > 15:
+                add_score = POINTS[num_right-16]
             overall_leaderboard_users, weekly_leaderboard_users = get_leaders()
             more_queues = len(db.users.find_one({'email':current_user.id})['available_queues']) > 0
             session.clear()
