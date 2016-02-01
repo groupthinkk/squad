@@ -118,8 +118,8 @@ def register():
     reg_code = request.form['reg_code']
     base_score = 0
     if db['users'].find_one({'email':reg_code}) != None:
-        db['users'].update({'email':reg_code}, {"$inc": {"score": 25, "weekly_score": 25}})
-        base_score = 25
+        db['users'].update({'email':reg_code}, {"$inc": {"score": 10, "weekly_score": 10}})
+        base_score = 10
     elif db['reg_codes'].find_one({'reg_code':reg_code}) == None:
         return render_template("register.html", message="Registration code is not valid")
     result = db['users'].find_one({"email": email})
