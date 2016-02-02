@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from operator import itemgetter
 from itertools import groupby
 import random
+from random import shuffle
 import logging
 import traceback
 from pymongo import MongoClient
