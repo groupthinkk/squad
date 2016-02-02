@@ -117,18 +117,19 @@ def register():
     ig_handle = request.form['ig_handle']
     reg_code = request.form['reg_code']
     base_score = 0
-    if db['users'].find_one({'email':reg_code}) != None:
-        db['users'].update({'email':reg_code}, {"$inc": {"score": 10, "weekly_score": 10}})
-        base_score = 10
-    elif db['reg_codes'].find_one({'reg_code':reg_code}) == None:
-        return render_template("register.html", message="Registration code is not valid")
-    result = db['users'].find_one({"email": email})
+    result = db['users'].find_one({"$or": [{"email": email}, {"phone_number": phone_number}]})
     if result is not None:
-        return render_template("register.html", message="Email already registered")
+        return render_template("register.html", message="Email or phone number already registered")
     elif password == password2:
+        if db['users'].find_one({'email':reg_code}) != None:
+            db['users'].update({'email':reg_code}, {"$inc": {"score": 10, "weekly_score": 10}})
+            db['referrals'].insert({'referrer': reg_code, 'referred': email})
+            base_score = 10
+        elif db['reg_codes'].find_one({'reg_code':reg_code}) == None:
+            return render_template("register.html", message="Registration code is not valid")
         queue_type_list = ['food', 'fashion', 'sports']
         shuffle(queue_type_list)
-        db['users'].insert({"email": email, "name": name, "score": base_score, "weekly_score": base_score, 'available_queues': queue_type_list, "pw_hash": bcrypt.generate_password_hash(password), "phone_number": phone_number, "ig_handle": ig_handle})
+        db['users'].insert({"email": email, "name": name, "score": base_score, "weekly_score": base_score, 'available_queues': queue_type_list, "pw_hash": bcrypt.generate_password_hash(password), "phone_number": phone_number, "ig_handle": ig_handle, "num_queues_completed": 0, "num_queues_weekly": 0})
         try:
             twilio_client.messages.create(to=phone_number, from_="+19292947687", body="Squad: Thank you for registering! We'll be in touch with more challenges soon. Reply STOP at any time to opt out.")
         except:
@@ -234,7 +235,7 @@ def queue_doer():
                 add_score = 0
                 if correct > 15:
                     add_score = POINTS[correct-16]
-                db['users'].update({'email':current_user.id}, {'$inc':{'score': add_score, 'weekly_score': add_score}, "$pop": {"available_queues": -1}})
+                db['users'].update({'email':current_user.id}, {'$inc':{'score': add_score, 'weekly_score': add_score, 'num_queues_weekly': 1, 'num_queues_completed': 1}, "$pop": {"available_queues": -1}})
             return render_new_post(rw)
         except:
             return traceback.format_exc()

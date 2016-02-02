@@ -43,8 +43,8 @@ def record_and_reset_weekly():
             db['users'].update({'email':user['email']}, {'$inc':{'score': WEEKLY_POINTS[user['rank']-1]}})
     db['weekly_leaders'].insert({'winners': weekly_leaders, 'date': dt.datetime.now()})
     db['users'].update(
-        {'weekly_score':{'$gte':0}},
-        {"$set": {"weekly_score": 0} },
+        {},
+        {"$set": {"weekly_score": 0, "num_queues_weekly": 0} },
         multi=True
     )
 
