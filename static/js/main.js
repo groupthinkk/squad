@@ -104,7 +104,6 @@
 
     function setupTouchDetect() {
         var post = $('.post').singletap(function(e) {
-            e.preventDefault();
             //$("#timer").TimeCircles().destroy();
             //highlightPost($(this));
             //updateScore($(this));
