@@ -98,7 +98,7 @@ def index():
         name = request.form['name']
         phone_number = request.form['phone_number'].replace('-', '').replace('(', '').replace(')', '')
         try:
-            twilio_client.messages.create(to=phone_number, from_="+19292947687", body="Squad: Hey %s, %s thinks they're better than you at Instagram. Sign up to prove them wrong: http://squadtest.herokuapp.com/register#reg_code=%s" % (name, current_user.name, current_user.id))
+            twilio_client.messages.create(to=phone_number, from_="+19292947687", body="Squad: Hey %s, %s thinks they're better than you at Instagram. Sign up to prove them wrong: http://goo.gl/KSLec5#reg_code=%s" % (name, current_user.name, current_user.id))
             message = "Your friend has been referred"
         except:
             message = "There was an error with your referral"
