@@ -121,9 +121,6 @@
         post.tapend(function(e, touch) {
             e.preventDefault();
         });
-        post.tapstart(function(e, touch) {
-            e.preventDefault();
-        });
     }
 
     // function bindArrowKeys() {
