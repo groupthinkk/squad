@@ -84,11 +84,11 @@ def redirect_back(endpoint, **values):
         target = url_for(endpoint, **values)
     return redirect(target)
 
-@app.route("/testaction", methods = ["GET"])
-@login_required
-def test_action():
-    session['current_comparison'] = 1000
-    return redirect(url_for('queue_doer'))
+# @app.route("/testaction", methods = ["GET"])
+# @login_required
+# def test_action():
+#     session['current_comparison'] = 1000
+#     return redirect(url_for('queue_doer'))
 
 @app.route("/", methods = ["GET", "POST"])
 @login_required
