@@ -109,6 +109,8 @@
             //updateScore($(this));
             //showNextPost();
             //setupStopwatch();
+        }).tap(function() {
+
         }).doubletap(function() {
             $("#timer").TimeCircles().destroy();
             highlightPost($(this));
@@ -117,6 +119,9 @@
         });
 
         post.tapend(function(e, touch) {
+            e.preventDefault();
+        });
+        post.tapstart(function(e, touch) {
             e.preventDefault();
         });
     }
@@ -161,7 +166,6 @@
 
         setTimeout(function() {
             $container.scrollLeft(scrollTo);
-            cacheNextImages(postIndex + 1);
         }, 200);
 
     }
