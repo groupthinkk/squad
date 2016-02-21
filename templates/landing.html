@@ -11,6 +11,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
     <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <style type="text/css">
+        .btn{
+            
+        }
+    </style>
 </head>  
 
 <body>
@@ -26,11 +31,27 @@
         <p>We’re about to show you 30 sets of Instagram Posts.</p>
         <p>Just double-tap the post you think got more “likes“.</p>
         <p>You earn exponential points for every one you get right above 15.</p>
+        <form method="POST">
+            <input hidden="hidden" value="start" name="start" id="start"></input>
+            <div class="btn-group btn-group-lg btn-group-vertical">
+              <button value="benandjerrys" name="benandjerrys" id="benandjerrys" type="submit" class="btn lets-play-btn">Ben and Jerry's</button>
+              <button value="crossfit" name="crossfit" id="crossfit" type="submit" class="btn lets-play-btn">Crossfit</button>
+              <button value="espn" name="espn" id="espn" type="submit" class="btn lets-play-btn">ESPN</button>
+              <button value="foodnetwork" name="foodnetwork" id="foodnetwork" type="submit" class="btn lets-play-btn">Food Network</button>
+              <button value="gap" name="gap" id="gap" type="submit" class="btn lets-play-btn">GAP</button>
+              <button value="gopro" name="gopro" id="gopro" type="submit" class="btn lets-play-btn">GoPro</button>
+              <button value="hm" name="hm" id="hm" type="submit" class="btn lets-play-btn">H&M</button>
+              <button value="jcrew" name="jcrew" id="jcrew" type="submit" class="btn lets-play-btn">J.Crew</button>
+              <button value="lakers" name="lakers" id="lakers" type="submit" class="btn lets-play-btn">Lakers</button>
+              <button value="levis" name="levis" id="levis" type="submit" class="btn lets-play-btn">Levi's</button>
+              <button value="ralphlauren" name="ralphlauren" id="ralphlauren" type="submit" class="btn lets-play-btn">Ralph Lauren</button>
+              <button value="rei" name="rei" id="rei" type="submit" class="btn lets-play-btn">REI</button>
+              <button value="starbucks" name="starbucks" id="starbucks" type="submit" class="btn lets-play-btn">Starbucks</button>
+              <button value="tacobell" name="tacobell" id="tacobell" type="submit" class="btn lets-play-btn">Taco Bell</button>
+              <button value="wholefoods" name="wholefoods" id="wholefoods" type="submit" class="btn lets-play-btn">Whole Foods</button>
+            </div>
+        </form>
     </div>
-
-    <form method="POST">
-        <button value="start" name="start" type="submit" class="btn lets-play-btn" id="start">Let’s Play</button>
-    </form>
 
 </body>
 </html>

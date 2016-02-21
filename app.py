@@ -103,7 +103,7 @@ def index():
         except:
             message = "There was an error with your referral"
     overall_leaderboard_users, weekly_leaderboard_users = get_leaders()
-    more_queues = len(db.users.find_one({'email':current_user.id})['available_queues']) > 0
+    more_queues = True
     return render_template("index.html", more_queues=more_queues, message=message, overall_leaderboard_users=overall_leaderboard_users, weekly_leaderboard_users=weekly_leaderboard_users)
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -130,7 +130,7 @@ def register():
             return render_template("register.html", message="Registration code is not valid")
         queue_type_list = ['food', 'fashion', 'sports']
         shuffle(queue_type_list)
-        db['users'].insert({"email": email, "name": name, "score": base_score, "weekly_score": base_score, 'available_queues': queue_type_list, "pw_hash": bcrypt.generate_password_hash(password), "phone_number": phone_number, "ig_handle": ig_handle, "num_queues_completed": 0, "num_queues_weekly": 0})
+        db['users'].insert({"email": email, "name": name, "score": base_score, "weekly_score": base_score, 'available_queues': queue_type_list, "pw_hash": bcrypt.generate_password_hash(password), "phone_number": phone_number, "ig_handle": ig_handle, "num_queues_completed": 0, "num_queues_weekly": 0, "last_queue": datetime.now()})
         try:
             twilio_client.messages.create(to=phone_number, from_="+19292947687", body="Squad: Thank you for registering! We'll be in touch with more challenges soon. Reply STOP at any time to opt out.")
         except:
@@ -169,6 +169,7 @@ def queue_doer():
     else:
         try:
             rw = None
+            print request.form
             if "start" in request.form:
                 if 'queue_id' not in session or \
                         'db_hit_id' not in session or \
@@ -176,13 +177,11 @@ def queue_doer():
                         'current_comparison' not in session or \
                         'correct' not in session or \
                         'contains_target' not in session:
-                    user_data = db.users.find_one({'email':current_user.id})
-                    if len(user_data['available_queues']) == 0:
-                        return redirect(url_for('index'))
                     try:
+                        queue_type = [x for x in request.form.keys() if x != "start"][0]
                         with lock:
-                            session['queue_id'] = db.queue_num.find_one({'queue_type':user_data["available_queues"][0]})['queue_num']
-                            db.queue_num.update({'queue_type':user_data["available_queues"][0]}, {'$inc':{'queue_num':1}})
+                            session['queue_id'] = db.queue_num.find_one({'queue_type':queue_type})['queue_num']
+                            db.queue_num.update({'queue_type':queue_type}, {'$inc':{'queue_num':1}})
                         req = dbfunctions.submit_new_turk(current_user.id, "queue" + str(session['queue_id']), session['queue_id'])
                         if 'messages' in req and ('Hit with this Hit id and Turker already exists.' in req['messages'] or 'Hit with this Turker and Instagram queue already exists.' in req['messages']):
                             if 'queue_id' not in session or \
@@ -236,7 +235,7 @@ def queue_doer():
                 add_score = 0
                 if correct > 15:
                     add_score = POINTS[correct-16]
-                db['users'].update({'email':current_user.id}, {'$inc':{'score': add_score, 'weekly_score': add_score, 'num_queues_weekly': 1, 'num_queues_completed': 1}, "$pop": {"available_queues": -1}})
+                db['users'].update({'email':current_user.id}, {'$inc': {'score': add_score, 'weekly_score': add_score, 'num_queues_weekly': 1, 'num_queues_completed': 1}, "$set": {"last_queue": datetime.now()}})
             return render_new_post(rw)
         except:
             return traceback.format_exc()
@@ -252,7 +251,7 @@ def render_new_post(rw):
             if num_right > 15:
                 add_score = POINTS[num_right-16]
             overall_leaderboard_users, weekly_leaderboard_users = get_leaders()
-            more_queues = len(db.users.find_one({'email':current_user.id})['available_queues']) > 0
+            more_queues = True
             session.clear()
             return render_template("ending.html", rater_percentage=rater_percentage, num_right=num_right, overall_leaderboard_users=overall_leaderboard_users, weekly_leaderboard_users=weekly_leaderboard_users, more_queues = more_queues, add_score=add_score)
         else: 
